@@ -141,3 +141,5 @@ config.yaml
 
 sql/.project
 *.code-workspace
+
+*.idea
