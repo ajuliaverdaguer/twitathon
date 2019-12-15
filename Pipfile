@@ -12,6 +12,7 @@ tweepy = "*"
 jupytext = "*"
 pyyaml = "*"
 pathlib = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.6"
