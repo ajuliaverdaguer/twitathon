@@ -76,6 +76,8 @@ def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=False
 
 # ## Trials for retrieving tweets
 
+# ### Tweets per user
+
 username = '@dacfortuny'
 
 tweets = retrieve_from_twitter(username, number_of_tweets=50)
@@ -84,21 +86,23 @@ len(tweets)
 
 tweets[0]
 
+# ### Tweets per hashtag
+
 hashtag = '#FelizDomingo'
 
-# +
-# tweets = retrieve_from_twitter(hashtag, 20)
-# -
+tweets = retrieve_from_twitter(hashtag, 20)
 
 len(tweets)
 
-# ## Parsing the JSONs 
+# ## Parsing JSONs 
 
 json_test = tweets[14]
 
 json_test
 
 json_test.keys()
+
+json_test["user"]
 
 # From raw tweets, we are retrieving the following information separated into 3 tables:
 # * **Tweets**: information about the tweets, such as user, creation datetime, source, text, etc. Each row corresponds to a single tweet (whether it is a regular one, a retweet or a quote).
@@ -160,11 +164,25 @@ df_tweets = pd.concat(l_tweets).reset_index(drop=True)
 df_mentions = pd.concat(l_mentions).reset_index(drop=True)
 df_hashtags = pd.concat(l_hashtags).reset_index(drop=True)
 
+users = {tweet["user"]["id"]:tweet["user"] for tweet in tweets}
+
+users
+
+COLUMNS_USERS = ["id", "name", "screen_name", "location", "followers_count", "friends_count", "created_at", "favourites_count",
+                 "time_zone", "geo_enabled", "verified", "statuses_count", "lang"]
+df_users = pd.DataFrame(users.values())[COLUMNS_USERS]
+df_users.head()
+
 df_tweets.head()
 
-df_mentions['id_len'] = df_mentions['user_id'].apply(lambda x: len(str(x)))
+df_mentions.head()
 
-df_mentions.sort_values('id_len', ascending=False).head(20)
+# +
+#df_mentions['id_len'] = df_mentions['user_id'].apply(lambda x: len(str(x)))
+
+# +
+#df_mentions.sort_values('id_len', ascending=False).head(20)
+# -
 
 df_hashtags.head()
 
@@ -193,15 +211,14 @@ df_hashtags.groupby('tweet_id').agg('count').rename(columns={'hashtag': 'count'}
 #         * Input: username=None, hashtag=None, start_date
 #         * Output: JSON per tweet
 #         * Research: com es trien els camps? Es pot accedir a un tweet per ID?
-#     - [ ] Parsejar JSONs i posar-ho en format taules:
+#     - [x] Parsejar JSONs i posar-ho en format taules:
 #         - [x] Històric tweets
-#         - [ ] Usuaris únics
+#         - [x] Usuaris únics
 #         - [x] Hashtags
 #         - [x] Mentions
+#     - [ ] Empalmar bé perquè es comencin a baixar des de l'últim.
 #     - [ ] Un cop tinguem una mostra de dades, analitzar quins camps són nuls normalment, etc. i acabar decidint quins camps volem.
 #     
 # 2. Quins hashtags ens interessen? 
 #     * Output: omplir el document
 #
-
-
