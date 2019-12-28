@@ -2,10 +2,10 @@
 
 ## Handling requirements
 
-To create a **pipenv** environment with the project requirements type:
+Create a new virtual environment (optional):
 
-`pipenv install`
+`conda create --name twitenv python=3.7 --no-default-packages`
 
-To enter the environment type:
+Install requirements:
 
-`pipenv shell`
+`pip install --user -r requirements.txt`
