@@ -13,7 +13,6 @@ from utils import utils
 import logging
 import pandas as pd
 import tweepy
-import twitter
 import yaml
 
 twitter_keys = utils.load_config()['default']['twitter']
