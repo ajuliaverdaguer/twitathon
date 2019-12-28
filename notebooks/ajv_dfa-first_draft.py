@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# # Retrieving data from Twitter
+
 from pathlib import Path
 import os
 import sys
@@ -9,27 +11,12 @@ if source_path not in sys.path:
 from utils import utils
 
 import logging
+import pandas as pd
 import tweepy
 import twitter
 import yaml
 
 twitter_keys = utils.load_config()['default']['twitter']
-
-
-def get_tweets(username):
-    #http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token_key, access_token_secret)
-    api = tweepy.API(auth)
-    #set count to however many tweets you want
-    number_of_tweets = 100
-    #get tweets
-    tweets_for_csv = []
-    for tweet in tweepy.Cursor(api.user_timeline, screen_name=username).items(number_of_tweets):
-        #create array of tweet information: username, tweet id, date/time, text
-        tweets_for_csv.append([username, tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")])
-    return tweets_for_csv
-    #write to a new csv file from the array of tweets
 
 
 def connect_to_twitter_api(wait_on_rate_limit=False):
@@ -45,70 +32,145 @@ def connect_to_twitter_api(wait_on_rate_limit=False):
     return tweepy.API(auth, wait_on_rate_limit=wait_on_rate_limit)
 
 
-def retrieve_tweets_from_user(username):
-    api = connect_to_twitter_api()
+def retrieve_tweets_from_user(username, number_of_tweets=100, wait_on_rate_limit=False, max_id=None,
+                             since_id=None):
     
-    number_of_tweets = 100
-    
-    tweets_for_csv = []
-    for tweet in tweepy.Cursor(api.user_timeline, screen_name=username).items(number_of_tweets):
-        #create array of tweet information: username, tweet id, date/time, text
-        tweets_for_csv.append([username, tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")])
-    
-    return tweets_for_csv
-
-
-def retrieve_tweets_from_hashtag(hashtag, number_of_tweets=100, wait_on_rate_limit=False):
     api = connect_to_twitter_api(wait_on_rate_limit)
-    
+        
     tweets = []
-    
-    for tweet in tweepy.Cursor(api.search, q=hashtag, count=number_of_tweets,
-                              tweet_mode='extended').items():
-        tweets.append(tweet)
+    for tweet in tweepy.Cursor(api.user_timeline,
+                               id=username, 
+                               max_id=max_id,
+                               since_id=since_id,
+                               tweet_mode='extended').items(number_of_tweets):
+        tweets.append(tweet._json)
     
     return tweets
 
 
+def retrieve_tweets_from_hashtag(hashtag, number_of_tweets=100, wait_on_rate_limit=False,max_id=None,
+                                 since_id=None):
+    
+    api = connect_to_twitter_api(wait_on_rate_limit)
+    
+    tweets = []
+    
+    for tweet in tweepy.Cursor(api.search, q=hashtag,
+                               max_id=max_id, since_id=since_id,
+                               tweet_mode='extended').items(number_of_tweets):
+        tweets.append(tweet._json)
+    
+    return tweets
+
+
+def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=False, max_id=None,
+                         since_id=None):
+
+    if '@' in entity:
+        return retrieve_tweets_from_user(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
+    
+    elif '#' in entity:
+        return retrieve_tweets_from_hashtag(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
+    
+    print("Should pass a username or hashtag with the proper format (@, #)")
+
+
+# ## Trials for retrieving tweets
+
 username = '@dacfortuny'
 
-dac = retrieve_tweets_from_user(username)
+tweets = retrieve_from_twitter(username, number_of_tweets=50)
 
-dac[0]
+len(tweets)
 
-hashtag = '#PyDayBCN'
+tweets[0]
 
-pyday = retrieve_tweets_from_hashtag(hashtag)
+hashtag = '#FelizDomingo'
 
-hashtag = '#MaduixaToLoka'
-hashtag = '#OnSonLesMaduixes'
-maduixes = retrieve_tweets_from_hashtag(hashtag)
+# +
+# tweets = retrieve_from_twitter(hashtag, 20)
+# -
 
-len(maduixes)
+len(tweets)
 
-maduixes[1]._json
+# ## Parsing the JSONs 
 
-pyday[0]._json
+json_test = tweets[14]
 
-for t in pyday:
-    if t.id == 1195635160449863680:
-        original_text = t.full_text
-        print(t._json)
+json_test
 
-original_text
+json_test.keys()
 
-pyday[0].text
+# From raw tweets, we are retrieving the following information separated into 3 tables:
+# * **Tweets**: information about the tweets, such as user, creation datetime, source, text, etc. Each row corresponds to a single tweet (whether it is a regular one, a retweet or a quote).
+# * **Mentions**: Relation of tweets with mentions. Each tweet has as many rows as different mentions.
+# * **Hashtags**: Same as mentions but with hashtags.
 
-pyday[0]
+# +
+l_tweets = []
+l_mentions = []
+l_hashtags = []
 
-hashtag = '#MeToo'
-metoo = retrieve_tweets_from_hashtag(hashtag, wait_on_rate_limit=True)
+for tweet in tweets:
+    
+    tweet_keys = tweet.keys()
+    tweet_id = tweet['id']
+    
+    # Define type of tweet
+    if 'retweeted_status' in tweet_keys:
+        tweet_type = 'rt'
+    elif 'quoted_status' in tweet_keys:
+        tweet_type = 'quote'
+    else:
+        tweet_type = 'regular'
+    
+    tmp_tweets = pd.DataFrame({'tweet_id': [tweet_id],
+                               'created_at': [tweet['created_at']],
+                               'text': [tweet['full_text']],
+                               'source': [tweet['source']],
+                               'in_reply_to_status_id': [tweet['in_reply_to_status_id']],
+                               'user_id': [tweet['user']['id']],
+                               'geo': [tweet['geo']],
+                               'coordinates': [tweet['coordinates']],
+                               'place': [tweet['place']],
+                               'contributors': [tweet['contributors']],
+                               'retweet_count': [tweet['retweet_count']],
+                               'favorite_count': [tweet['favorite_count']],
+                               'favorited': [tweet['favorited']],
+                               'retweeted': [tweet['retweeted']],
+                               'lang': [tweet['lang']],
+                               'type': tweet_type
+                              })
+    
+    # Parse entities in tweet (mentions and hashtags)
+    if 'entities' in tweet_keys:
+        for mention in tweet['entities']['user_mentions']:   
+            tmp_mentions = pd.DataFrame({'tweet_id': [tweet_id],
+                                         'user_id': [mention['id']]})
+            l_mentions.append(tmp_mentions)
+        
+        for hashtag in tweet['entities']['hashtags']:
+            tmp_hash = pd.DataFrame({'tweet_id': tweet_id,
+                                     'hashtag': [hashtag['text']]})
+            l_hashtags.append(tmp_hash)
+    
+    l_tweets.append(tmp_tweets)
+# -
 
-len(metoo)
+df_tweets = pd.concat(l_tweets).reset_index(drop=True)
+df_mentions = pd.concat(l_mentions).reset_index(drop=True)
+df_hashtags = pd.concat(l_hashtags).reset_index(drop=True)
 
-didac = retrieve_tweets_from_user(username)
+df_tweets.head()
 
-len(didac)
+df_mentions['id_len'] = df_mentions['user_id'].apply(lambda x: len(str(x)))
+
+df_mentions.sort_values('id_len', ascending=False).head(20)
+
+df_hashtags.head()
+
+df_hashtags.groupby('tweet_id').agg('count').rename(columns={'hashtag': 'count'}). \
+        sort_values('count', ascending=False)
 
 # ### Questions to solve
 # 1. Dates
@@ -128,16 +190,16 @@ len(didac)
 #     
 # ### Next steps
 # 1. Netejar el codi per poder-lo posar a córrer
-#     * Poder descarregar tweets per username i/o hashtag (= JSON tornat)
+#     - [x] Poder descarregar tweets per username i/o hashtag (= JSON tornat)
 #         * Input: username=None, hashtag=None, start_date
 #         * Output: JSON per tweet
 #         * Research: com es trien els camps? Es pot accedir a un tweet per ID?
-#     * Parsejar JSONs i posar-ho en format taules:
-#         * Històric tweets
-#         * Usuaris únics
-#         * Hashtags
-#         * Mentions
-#     * Un cop tinguem una mostra de dades, analitzar quins camps són nuls normalment, etc. i acabar decidint quins camps volem.
+#     - [ ] Parsejar JSONs i posar-ho en format taules:
+#         - [x] Històric tweets
+#         - [ ] Usuaris únics
+#         - [x] Hashtags
+#         - [x] Mentions
+#     - [ ] Un cop tinguem una mostra de dades, analitzar quins camps són nuls normalment, etc. i acabar decidint quins camps volem.
 #     
 # 2. Quins hashtags ens interessen? 
 #     * Output: omplir el document
