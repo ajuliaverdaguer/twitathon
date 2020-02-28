@@ -9,6 +9,7 @@ if source_path not in sys.path:
 from utils import utils
 
 import pandas as pd
+from tqdm import tqdm
 # -
 
 ENTITIES_TO_RETRIEVE = Path(source_path).parent / 'data' / "entities_to_retrieve_sample.txt"
@@ -17,9 +18,15 @@ ENTITIES_TO_RETRIEVE = Path(source_path).parent / 'data' / "entities_to_retrieve
 # +
 def retrieve_tweets_from_file(file):
     entities = [line.rstrip('\n') for line in open(file)]
-    for entity in entities:
-        tweets = utils.retrieve_from_twitter(entity)
-        update_data_files(tweets)
+    
+    for entity in tqdm(entities, desc='Entities', total=len(entities)):
+        tweets = utils.retrieve_from_twitter(entity, number_of_tweets=1000)
+        
+        if len(tweets) != 0:
+            update_data_files(tweets)
+        
+        else:
+            print(f"No tweets found for entity {entity}")
 
 def update_data_files(tweets):
     FILE_TWEETS = Path(source_path).parent / 'data' / "tweets.csv"
@@ -40,7 +47,7 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
     l_mentions = []
     l_hashtags = []
-
+    
     for tweet in tweets:
 
         tweet_keys = tweet.keys()
@@ -104,7 +111,7 @@ def update_data_file(file, data, id_field):
     SEPARATOR = ";"
     try:
         data_old = pd.read_csv(file, sep=SEPARATOR)
-        data_old_ids = data_old[id_field]
+        data_old_ids = [str(i) for i in data_old[id_field]]
         data_new_ids = [str(i) for i in data[id_field]]
         ids_remove = [i for i in data_old_ids if i in data_new_ids]
         data_old = data_old[~data_old[id_field].isin(ids_remove)]
@@ -117,3 +124,5 @@ def update_data_file(file, data, id_field):
 # -
 
 retrieve_tweets_from_file(ENTITIES_TO_RETRIEVE)
+
+

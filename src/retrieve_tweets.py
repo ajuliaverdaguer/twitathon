@@ -84,10 +84,10 @@ def create_users_dataframe(tweets):
     return df_users
 
 
-def retrieve_tweets_from_file(file):
+def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
     for entity in tqdm(entities):
-        tweets = utils.retrieve_from_twitter(entity)
+        tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
         update_data_files(tweets)
 
 
@@ -95,7 +95,7 @@ def update_csv(file, data, id_field):
     SEPARATOR = ";"
     try:
         data_old = pd.read_csv(file, sep=SEPARATOR)
-        data_old_ids = data_old[id_field]
+        data_old_ids = [str(i) for i in data_old[id_field]]
         data_new_ids = [str(i) for i in data[id_field]]
         ids_remove = [i for i in data_old_ids if i in data_new_ids]
         data_old = data_old[~data_old[id_field].isin(ids_remove)]
@@ -118,5 +118,5 @@ def update_data_files(tweets):
 
 
 if __name__ == '__main__':
-    # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve_sample.txt'
+    # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve.txt' --number_of_tweets=1000
     fire.Fire()
