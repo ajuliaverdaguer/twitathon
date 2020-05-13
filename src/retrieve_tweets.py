@@ -67,9 +67,20 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
 
         l_tweets.append(tmp_tweets)
 
-    df_tweets = pd.concat(l_tweets).reset_index(drop=True)
-    df_mentions = pd.concat(l_mentions).reset_index(drop=True)
-    df_hashtags = pd.concat(l_hashtags).reset_index(drop=True)
+    if len(l_tweets) > 0:
+        df_tweets = pd.concat(l_tweets).reset_index(drop=True)
+    else:
+        df_tweets = None
+
+    if len(l_mentions) > 0:
+        df_mentions = pd.concat(l_mentions).reset_index(drop=True)
+    else:
+        df_mentions = None
+
+    if len(l_hashtags) > 0:
+        df_hashtags = pd.concat(l_hashtags).reset_index(drop=True)
+    else:
+        df_hashtags = None
 
     return df_tweets, df_mentions, df_hashtags
 
@@ -86,9 +97,13 @@ def create_users_dataframe(tweets):
 
 def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
+
     for entity in tqdm(entities):
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
-        update_data_files(tweets)
+
+        # Only update when there is at least one tweet retrieved
+        if len(tweets) > 0:
+            update_data_files(tweets)
 
 
 def update_csv(file, data, id_field):
@@ -111,9 +126,16 @@ def update_data_files(tweets):
     users_df = create_users_dataframe(tweets)
 
     data_folder = Path(utils.load_config()['default']['twitter']['data_folder'])
-    update_csv(data_folder / "tweets.csv", tweets_df, "tweet_id")
-    update_csv(data_folder / "mentions.csv", mentions_df, "tweet_id")
-    update_csv(data_folder / "hashtags.csv", hashtags_df, "tweet_id")
+
+    if tweets_df is not None:
+        update_csv(data_folder / "tweets.csv", tweets_df, "tweet_id")
+
+    if mentions_df is not None:
+        update_csv(data_folder / "mentions.csv", mentions_df, "tweet_id")
+
+    if hashtags_df is not None:
+        update_csv(data_folder / "hashtags.csv", hashtags_df, "tweet_id")
+
     update_csv(data_folder / "users.csv", users_df, "user_id")
 
 
