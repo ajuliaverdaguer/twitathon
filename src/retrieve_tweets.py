@@ -14,6 +14,8 @@ from utils import utils
 
 import fire
 import pandas as pd
+import pyarrow.parquet as pq
+import pyarrow as pa
 from tqdm import tqdm
 
 
@@ -35,15 +37,15 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
         else:
             tweet_type = 'regular'
 
-        tmp_tweets = pd.DataFrame({'tweet_id': [tweet_id],
+        tmp_tweets = pd.DataFrame({'tweet_id': [str(tweet_id)],
                                    'created_at': [tweet['created_at']],
                                    'text': [tweet['full_text']],
                                    'source': [tweet['source']],
-                                   'in_reply_to_status_id': [tweet['in_reply_to_status_id']],
-                                   'user_id': [tweet['user']['id']],
+                                   'in_reply_to_status_id': [str(tweet['in_reply_to_status_id'])],
+                                   'user_id': [str(tweet['user']['id'])],
                                    'geo': [tweet['geo']],
                                    'coordinates': [tweet['coordinates']],
-                                   'place': [tweet['place']],
+                                   'place': [str(tweet['place'])],
                                    'contributors': [tweet['contributors']],
                                    'retweet_count': [tweet['retweet_count']],
                                    'favorite_count': [tweet['favorite_count']],
@@ -56,12 +58,12 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
         # Parse entities in tweet (mentions and hashtags)
         if 'entities' in tweet_keys:
             for mention in tweet['entities']['user_mentions']:
-                tmp_mentions = pd.DataFrame({'tweet_id': [tweet_id],
-                                             'user_id': [mention['id']]})
+                tmp_mentions = pd.DataFrame({'tweet_id': [str(tweet_id)],
+                                             'user_id': [str(mention['id'])]})
                 l_mentions.append(tmp_mentions)
 
             for hashtag in tweet['entities']['hashtags']:
-                tmp_hash = pd.DataFrame({'tweet_id': tweet_id,
+                tmp_hash = pd.DataFrame({'tweet_id': str(tweet_id),
                                          'hashtag': [hashtag['text']]})
                 l_hashtags.append(tmp_hash)
 
@@ -89,9 +91,10 @@ def create_users_dataframe(tweets):
     COLUMNS_USERS = ["id", "name", "screen_name", "location", "followers_count", "friends_count", "created_at",
                      "favourites_count",
                      "time_zone", "geo_enabled", "verified", "statuses_count", "lang"]
-    users = {tweet["user"]["id"]: tweet["user"] for tweet in tweets}
+    users = {str(tweet["user"]["id"]): tweet["user"] for tweet in tweets}
     df_users = pd.DataFrame(users.values())[COLUMNS_USERS]
     df_users = df_users.rename(columns={"id": "user_id"})
+    df_users["user_id"] = str(df_users["user_id"])
     return df_users
 
 
@@ -99,6 +102,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
 
     for entity in tqdm(entities):
+        print(entity)
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
 
         # Only update when there is at least one tweet retrieved
@@ -106,18 +110,18 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
             update_data_files(tweets)
 
 
-def update_csv(file, data, id_field):
-    SEPARATOR = ";"
+def update_parquet(file, data, id_field):
     try:
-        data_old = pd.read_csv(file, sep=SEPARATOR)
+        data_old = pq.read_table(file).to_pandas()
         data_old_ids = [str(i) for i in data_old[id_field]]
         data_new_ids = [str(i) for i in data[id_field]]
         ids_remove = [i for i in data_old_ids if i in data_new_ids]
         data_old = data_old[~data_old[id_field].isin(ids_remove)]
-        data = pd.concat([data_old, data])
-    except FileNotFoundError:
+        data = pd.concat([data_old, data]).reset_index(drop=True)
+    except OSError:
         pass
-    data.to_csv(file, index=False, encoding="utf-8", sep=SEPARATOR)
+    df = pa.Table.from_pandas(data)
+    pq.write_table(df, file, compression='gzip')
 
 
 def update_data_files(tweets):
@@ -127,16 +131,20 @@ def update_data_files(tweets):
 
     data_folder = Path(utils.load_config()['default']['twitter']['data_folder'])
 
+    print(f"- Saving tweets ({len(tweets_df)})")
     if tweets_df is not None:
-        update_csv(data_folder / "tweets.csv", tweets_df, "tweet_id")
+        update_parquet(data_folder / "tweets.parquet.gz", tweets_df, "tweet_id")
 
+    print(f"- Saving mentions ({len(mentions_df)})")
     if mentions_df is not None:
-        update_csv(data_folder / "mentions.csv", mentions_df, "tweet_id")
+        update_parquet(data_folder / "mentions.parquet.gz", mentions_df, "tweet_id")
 
+    print(f"- Saving hashtags ({len(hashtags_df)})")
     if hashtags_df is not None:
-        update_csv(data_folder / "hashtags.csv", hashtags_df, "tweet_id")
+        update_parquet(data_folder / "hashtags.parquet.gz", hashtags_df, "tweet_id")
 
-    update_csv(data_folder / "users.csv", users_df, "user_id")
+    print(f"- Saving users ({len(users_df)})")
+    update_parquet(data_folder / "users.parquet.gz", users_df, "user_id")
 
 
 if __name__ == '__main__':
