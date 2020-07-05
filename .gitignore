@@ -16,6 +16,7 @@ __pycache__/
 *.doc
 *.docx
 *.json
+*.parquet.gz
 
 
 # Distribution / packaging
