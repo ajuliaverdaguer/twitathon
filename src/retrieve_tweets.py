@@ -12,12 +12,10 @@ if source_path not in sys.path:
 
 from utils import utils
 
+import fastparquet
 import fire
 import pandas as pd
-import pyarrow.parquet as pq
-import pyarrow as pa
 from tqdm import tqdm
-
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -112,7 +110,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
 def update_parquet(file, data, id_field):
     try:
-        data_old = pq.read_table(file).to_pandas()
+        data_old = pd.read_parquet(file, engine="fastparquet")
         data_old_ids = [str(i) for i in data_old[id_field]]
         data_new_ids = [str(i) for i in data[id_field]]
         ids_remove = [i for i in data_old_ids if i in data_new_ids]
@@ -120,8 +118,7 @@ def update_parquet(file, data, id_field):
         data = pd.concat([data_old, data]).reset_index(drop=True)
     except OSError:
         pass
-    df = pa.Table.from_pandas(data)
-    pq.write_table(df, file, compression='gzip')
+    data.to_parquet(file, engine="fastparquet", compression='gzip')
 
 
 def update_data_files(tweets):
