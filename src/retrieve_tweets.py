@@ -136,11 +136,7 @@ def update_data_files(tweets):
 def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
 
-    i = 1
     for entity in tqdm(entities):
-
-        if i % 15 == 0:
-            time.sleep(900)
 
         print(entity)
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
@@ -148,8 +144,6 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
             update_data_files(tweets)
-
-        i = i + 1
 
 
 if __name__ == '__main__':
