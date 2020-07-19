@@ -14,7 +14,9 @@ from utils import utils
 
 import fire
 import pandas as pd
+import time
 from tqdm import tqdm
+
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -95,18 +97,6 @@ def create_users_dataframe(tweets):
     return df_users
 
 
-def retrieve_tweets_from_file(file, number_of_tweets=100):
-    entities = [line.rstrip('\n') for line in open(file)]
-
-    for entity in tqdm(entities):
-        print(entity)
-        tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
-
-        # Only update when there is at least one tweet retrieved
-        if len(tweets) > 0:
-            update_data_files(tweets)
-
-
 def update_pickle(file, data, id_field):
     try:
         data_old = pd.read_pickle(file, compression="gzip")
@@ -121,26 +111,45 @@ def update_pickle(file, data, id_field):
 
 
 def update_data_files(tweets):
-
     tweets_df, mentions_df, hashtags_df = create_tweets_mentions_hashtags_dataframes(tweets)
     users_df = create_users_dataframe(tweets)
 
     data_folder = Path(utils.load_config()['default']['twitter']['data_folder'])
 
-    print(f"- Saving tweets ({len(tweets_df)})")
     if tweets_df is not None:
+        print(f"- Saving tweets ({len(tweets_df)})")
         update_pickle(data_folder / "tweets.pkl", tweets_df, "tweet_id")
 
-    print(f"- Saving mentions ({len(mentions_df)})")
     if mentions_df is not None:
+        print(f"- Saving mentions ({len(mentions_df)})")
         update_pickle(data_folder / "mentions.pkl", mentions_df, "tweet_id")
 
-    print(f"- Saving hashtags ({len(hashtags_df)})")
     if hashtags_df is not None:
+        print(f"- Saving hashtags ({len(hashtags_df)})")
         update_pickle(data_folder / "hashtags.pkl", hashtags_df, "tweet_id")
 
-    print(f"- Saving users ({len(users_df)})")
-    update_pickle(data_folder / "users.pkl", users_df, "user_id")
+    if users_df is not None:
+        print(f"- Saving users ({len(users_df)})")
+        update_pickle(data_folder / "users.pkl", users_df, "user_id")
+
+
+def retrieve_tweets_from_file(file, number_of_tweets=100):
+    entities = [line.rstrip('\n') for line in open(file)]
+
+    i = 1
+    for entity in tqdm(entities):
+
+        if i % 15 == 0:
+            time.sleep(900)
+
+        print(entity)
+        tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
+
+        # Only update when there is at least one tweet retrieved
+        if len(tweets) > 0:
+            update_data_files(tweets)
+
+        i = i + 1
 
 
 if __name__ == '__main__':
