@@ -12,7 +12,6 @@ if source_path not in sys.path:
 
 from utils import utils
 
-import fastparquet
 import fire
 import pandas as pd
 from tqdm import tqdm
@@ -108,9 +107,9 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
             update_data_files(tweets)
 
 
-def update_parquet(file, data, id_field):
+def update_pickle(file, data, id_field):
     try:
-        data_old = pd.read_parquet(file, engine="fastparquet")
+        data_old = pd.read_pickle(file, compression="gzip")
         data_old_ids = [str(i) for i in data_old[id_field]]
         data_new_ids = [str(i) for i in data[id_field]]
         ids_remove = [i for i in data_old_ids if i in data_new_ids]
@@ -118,7 +117,7 @@ def update_parquet(file, data, id_field):
         data = pd.concat([data_old, data]).reset_index(drop=True)
     except OSError:
         pass
-    data.to_parquet(file, engine="fastparquet", compression='gzip')
+    data.to_pickle(file, compression="gzip")
 
 
 def update_data_files(tweets):
@@ -130,18 +129,18 @@ def update_data_files(tweets):
 
     print(f"- Saving tweets ({len(tweets_df)})")
     if tweets_df is not None:
-        update_parquet(data_folder / "tweets.parquet.gz", tweets_df, "tweet_id")
+        update_pickle(data_folder / "tweets.pkl", tweets_df, "tweet_id")
 
     print(f"- Saving mentions ({len(mentions_df)})")
     if mentions_df is not None:
-        update_parquet(data_folder / "mentions.parquet.gz", mentions_df, "tweet_id")
+        update_pickle(data_folder / "mentions.pkl", mentions_df, "tweet_id")
 
     print(f"- Saving hashtags ({len(hashtags_df)})")
     if hashtags_df is not None:
-        update_parquet(data_folder / "hashtags.parquet.gz", hashtags_df, "tweet_id")
+        update_pickle(data_folder / "hashtags.pkl", hashtags_df, "tweet_id")
 
     print(f"- Saving users ({len(users_df)})")
-    update_parquet(data_folder / "users.parquet.gz", users_df, "user_id")
+    update_pickle(data_folder / "users.pkl", users_df, "user_id")
 
 
 if __name__ == '__main__':

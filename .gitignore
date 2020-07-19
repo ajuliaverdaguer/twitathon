@@ -17,7 +17,7 @@ __pycache__/
 *.docx
 *.json
 *.parquet.gz
-
+*.pkl
 
 # Distribution / packaging
 .Python
@@ -144,3 +144,5 @@ sql/.project
 *.code-workspace
 
 *.idea
+
+data/entities_to_retrieve.txt
