@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -17,16 +18,16 @@ import pandas as pd
 
 # # Settings
 
-TWEETS_FILE = "../data/tweets.csv"
-HASHTAGS_FILE = "../data/hashtags.csv"
-MENTIONS_FILE = "../data/mentions.csv"
-USERS_FILE = "../data/users.csv"
+TWEETS_FILE = "../data/tweets.pkl"
+HASHTAGS_FILE = "../data/hashtags.pkl"
+MENTIONS_FILE = "../data/mentions.pkl"
+USERS_FILE = "../data/users.pkl"
 
 
 # # Functions
 
 def read_data(file):
-    df = pd.read_csv(file, encoding="utf-8", sep=";")
+    df = pd.read_pickle(file, compression="gzip")
     return df
 
 
@@ -34,13 +35,15 @@ def read_data(file):
 
 tweets = read_data(TWEETS_FILE)
 
-tweets = pd.read_csv(TWEETS_FILE, encoding="utf-8", sep=";", quoting=3, error_bad_lines=False)
+tweets = read_data(TWEETS_FILE)
 print(len(tweets))
-tweets.head(20)
+tweets.head()
 
 hashtags = read_data(HASHTAGS_FILE)
 print(len(hashtags))
 hashtags.head()
+
+hashtags
 
 mentions = read_data(MENTIONS_FILE)
 print(len(mentions))
@@ -50,34 +53,53 @@ users = read_data(USERS_FILE)
 print(len(users))
 users.head()
 
-# # Counts
+# # Analysis
 
-# ## Unique tweets
+# ## Tweets
+
+# ### Total tweets
 
 print(len(tweets))
 
+# ### Unique tweets
+
 print(len(tweets["tweet_id"].unique()))
 
-# ## Unique hashtags
+# ## Hashtags
+
+# ### Total hashtags
+
+print(len(hashtags))
+
+# ### Unique hashtags
+
+print(len(hashtags["hashtag"].unique()))
+
+# ### Top hashtags
 
 hashtags_summary = hashtags.groupby("hashtag").size().sort_values(ascending=False)
+hashtags_summary.head(20)
 
-print(hashtags_summary.head(20))
+# ## Users
 
-print(len(hashtags_summary))
+# ### Total users
 
-# ## Unique users
+print(len(users))
 
-users_summary = users.groupby("name").size().sort_values(ascending=False)
+# ### Unique users
 
-print(users_summary.head(20))
+print(len(users["user_id"].unique()))
 
-print(len(users_summary))
+# ### Top users
+
+users_summary = tweets[["user_id"]].merge(users, on="user_id", how="left")
+users_summary = users_summary.groupby(["user_id", "name"]).size().sort_values(ascending=False)
+users_summary.head(20)
 
 # ## Time evolution
 
 dates = pd.to_datetime(tweets["created_at"], errors="coerce").dt.date
 dates_summary = dates.value_counts()
-dates_summary
+dates_summary.sort_index().tail(20)
 
 dates_summary.plot()
