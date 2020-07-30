@@ -10,6 +10,7 @@ source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
+import datetime
 import logging
 import tweepy
 import yaml
@@ -92,3 +93,13 @@ def retrieve_tweets_from_hashtag(hashtag, number_of_tweets=100, wait_on_rate_lim
         tweets.append(tweet._json)
 
     return tweets
+
+
+def log_and_print(message):
+    LOG_FILE = "data/log.txt"
+    now = datetime.datetime.now()
+    now = now.strftime("%Y-%m-%d %H:%M:%S")
+    with open(LOG_FILE, "a") as file:
+        file.write(f"{now} {message}")
+        file.write("\n")
+    print(message)
