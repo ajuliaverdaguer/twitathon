@@ -17,6 +17,7 @@ import pandas as pd
 import time
 from tqdm import tqdm
 
+LOG_FILE = "data/log.txt"
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -117,19 +118,19 @@ def update_data_files(tweets):
     data_folder = Path(utils.load_config()['default']['twitter']['data_folder'])
 
     if tweets_df is not None:
-        print(f"- Saving tweets ({len(tweets_df)})")
+        utils.log_and_print(f"- Saving tweets ({len(tweets_df)})")
         update_pickle(data_folder / "tweets.pkl", tweets_df, "tweet_id")
 
     if mentions_df is not None:
-        print(f"- Saving mentions ({len(mentions_df)})")
+        utils.log_and_print(f"- Saving mentions ({len(mentions_df)})")
         update_pickle(data_folder / "mentions.pkl", mentions_df, "tweet_id")
 
     if hashtags_df is not None:
-        print(f"- Saving hashtags ({len(hashtags_df)})")
+        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})")
         update_pickle(data_folder / "hashtags.pkl", hashtags_df, "tweet_id")
 
     if users_df is not None:
-        print(f"- Saving users ({len(users_df)})")
+        utils.log_and_print(f"- Saving users ({len(users_df)})")
         update_pickle(data_folder / "users.pkl", users_df, "user_id")
 
 
@@ -138,7 +139,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
     for entity in tqdm(entities):
 
-        print(entity)
+        utils.log_and_print(entity)
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
 
         # Only update when there is at least one tweet retrieved
