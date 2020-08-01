@@ -12,9 +12,9 @@ if source_path not in sys.path:
 
 from utils import utils
 
+import datetime
 import fire
 import pandas as pd
-import time
 from tqdm import tqdm
 
 LOG_FILE = "data/log.txt"
@@ -55,6 +55,12 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
                                    'type': tweet_type
                                    })
 
+        # If not a regular tweet, extract entities from original tweet.
+        if tweet_type == "rt":
+            tweet = tweet["retweeted_status"]
+        if tweet_type == "quote":
+            tweet = tweet["quoted_status"]
+
         # Parse entities in tweet (mentions and hashtags)
         if 'entities' in tweet_keys:
             for mention in tweet['entities']['user_mentions']:
@@ -94,11 +100,12 @@ def create_users_dataframe(tweets):
     users = {str(tweet["user"]["id"]): tweet["user"] for tweet in tweets}
     df_users = pd.DataFrame(users.values())[COLUMNS_USERS]
     df_users = df_users.rename(columns={"id": "user_id"})
-    df_users["user_id"] = str(df_users["user_id"])
+    df_users["user_id"] = df_users["user_id"].astype(str)
     return df_users
 
 
 def update_pickle(file, data, id_field):
+    data["downloaded_at"] = datetime.datetime.now()
     try:
         data_old = pd.read_pickle(file, compression="gzip")
         data_old_ids = [str(i) for i in data_old[id_field]]

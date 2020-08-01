@@ -43,8 +43,6 @@ hashtags = read_data(HASHTAGS_FILE)
 print(len(hashtags))
 hashtags.head()
 
-hashtags
-
 mentions = read_data(MENTIONS_FILE)
 print(len(mentions))
 mentions.head()
@@ -98,7 +96,7 @@ users_summary.head(20)
 
 # ## Time evolution
 
-dates = pd.to_datetime(tweets["created_at"], errors="coerce").dt.date
+dates = pd.to_datetime(tweets["downloaded_at"], errors="coerce").dt.date
 dates_summary = dates.value_counts()
 dates_summary.sort_index().tail(20)
 
