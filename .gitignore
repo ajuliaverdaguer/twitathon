@@ -18,6 +18,7 @@ __pycache__/
 *.json
 *.parquet.gz
 *.pkl
+*.zip
 
 # Distribution / packaging
 .Python
