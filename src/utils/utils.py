@@ -11,6 +11,7 @@ if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
 import datetime
+from langdetect import detect, lang_detect_exception
 import logging
 import tweepy
 import yaml
@@ -26,6 +27,29 @@ def connect_to_twitter_api(wait_on_rate_limit=False):
                           twitter_keys['access_token_secret'])
 
     return tweepy.API(auth, wait_on_rate_limit=wait_on_rate_limit)
+
+
+def detect_text_language(text):
+    """
+    Detect language from text using langdetect package
+
+    Parameters
+    ----------
+    text: string
+        Text from which to detect the language
+    Return
+    ------
+    str
+        Language detected
+    """
+
+    try:
+        lang = detect(text)
+
+    except lang_detect_exception.LangDetectException:
+        lang = None
+
+    return lang
 
 
 def load_config():
