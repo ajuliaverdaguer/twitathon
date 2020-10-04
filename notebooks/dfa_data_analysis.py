@@ -63,6 +63,25 @@ print(len(tweets))
 
 print(len(tweets["tweet_id"].unique()))
 
+# ### Tweets per type
+
+tweets.groupby("type").size()
+
+# ### Tweets per language
+
+tweets_lang = tweets.copy()
+tweets_lang["lang"][~tweets_lang["lang"].isin(["en", "es", "ca"])] = "other"
+tweets_lang.groupby("lang").size().sort_values(ascending=False)
+
+# #### Tweets in Spanish
+
+tweets_lang[tweets_lang["lang"] == "es"].groupby("type").size()
+
+# + jupyter={"outputs_hidden": true} active=""
+# for i in tweets_lang[(tweets_lang["lang"] == "es") & (tweets_lang["type"] == "regular")]["text"].tolist()[0:100]:
+#     print(i)
+# -
+
 # ## Hashtags
 
 # ### Total hashtags
@@ -73,7 +92,7 @@ print(len(hashtags))
 
 print(len(hashtags["hashtag"].unique()))
 
-# ### Top hashtags
+# ### Top hashtags
 
 hashtags_summary = hashtags.groupby("hashtag").size().sort_values(ascending=False)
 hashtags_summary.head(20)
