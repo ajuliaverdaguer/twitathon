@@ -2,20 +2,22 @@
 Useful, generic functions
 """
 
-from pathlib import Path
 import os
 import sys
+
+from pathlib import Path
 
 source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
 import datetime
-from langdetect import detect, lang_detect_exception
 import logging
+import pandas as pd
 import tweepy
 import yaml
 
+from langdetect import detect, lang_detect_exception
 
 def connect_to_twitter_api(wait_on_rate_limit=False):
     twitter_keys = load_config()['default']['twitter']
@@ -127,3 +129,12 @@ def log_and_print(message):
         file.write(f"{now} {message}")
         file.write("\n")
     print(message)
+
+    
+def read_data(file):
+    df = pd.read_pickle(file, compression="gzip")
+    return df
+
+
+def read_entities_to_retrieve_file(file):
+    return [line.rstrip('\n') for line in open(file)]
