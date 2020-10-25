@@ -147,4 +147,5 @@ sql/.project
 *.idea
 
 data/entities_to_retrieve.txt
+data/entities_automatic.txt
 data/log.txt
