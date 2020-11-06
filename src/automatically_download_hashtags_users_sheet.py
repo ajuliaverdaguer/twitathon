@@ -105,3 +105,6 @@ if __name__ == '__main__':
 
     # python src/automatically_download_hashtags_users_sheet.py retrieve_users_hashtags
     fire.Fire()
+
+    # For debugging
+    # retrieve_users_hashtags()
