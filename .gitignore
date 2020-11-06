@@ -17,6 +17,7 @@ __pycache__/
 *.docx
 *.json
 *.parquet.gz
+*.pickle
 *.pkl
 *.zip
 
@@ -140,6 +141,7 @@ venv.bak/
 
 # Config file
 config.yaml
+credentials.json
 
 sql/.project
 *.code-workspace
