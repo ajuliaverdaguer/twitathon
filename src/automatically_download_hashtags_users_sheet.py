@@ -1,6 +1,5 @@
 """
-This process aims at automating the update of the file 'entities_to_retrive.txt',
- used for downloading tweets from Twitter.
+This process aims at automatically downloading new hashtags and users from our Google spreadsheets.
 """
 
 from __future__ import print_function
