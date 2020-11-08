@@ -1,3 +1,7 @@
+"""
+This script aims at retrieving
+"""
+
 from pathlib import Path
 import os
 import sys
@@ -24,8 +28,8 @@ def main():
     print("############################################")
 
     print("\nUPDATING MANUAL LIST OF HASHTAGS AND USERS TO RETRIEVE...\n")
-    #retrieve_users_hashtags()
-    #update_entities_to_retrieve()
+    retrieve_users_hashtags()
+    update_entities_to_retrieve()
 
     print("\nRETRIEVING TWEETS FROM MANUAL LIST...\n")
     retrieve_tweets_from_file(file=ENTITIES_TO_RETRIEVE_FILE, number_of_tweets=NUMBER_OF_TWEETS)
@@ -35,6 +39,7 @@ def main():
 
     print("\nRETRIEVING TWEETS FROM AUTOMATIC LIST...\n")
     retrieve_tweets_from_file(file=ENTITIES_AUTOMATIC_FILE, number_of_tweets=NUMBER_OF_TWEETS)
+
 
 if __name__ == '__main__':
     main()
