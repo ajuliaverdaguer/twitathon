@@ -15,9 +15,15 @@ from utils import utils
 import datetime
 import fire
 import pandas as pd
+import time
+
 from tqdm import tqdm
 
-LOG_FILE = "data/log.txt"
+OUTPUT_PATH = "data/raw"
+
+LOG_FILE = f"{OUTPUT_PATH}/log.txt"
+MONTH_PREFIX = time.strftime("%Y-%m")
+
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -122,24 +128,21 @@ def update_data_files(tweets):
     tweets_df, mentions_df, hashtags_df = create_tweets_mentions_hashtags_dataframes(tweets)
     users_df = create_users_dataframe(tweets)
 
-    data_folder = Path(utils.load_config()['default']['twitter']['data_folder'])
-
     if tweets_df is not None:
         utils.log_and_print(f"- Saving tweets ({len(tweets_df)})")
-        update_pickle(data_folder / "tweets.pkl", tweets_df, "tweet_id")
+        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_tweets.pkl", tweets_df, "tweet_id")
 
     if mentions_df is not None:
         utils.log_and_print(f"- Saving mentions ({len(mentions_df)})")
-        update_pickle(data_folder / "mentions.pkl", mentions_df, "tweet_id")
+        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_mentions.pkl", mentions_df, "tweet_id")
 
     if hashtags_df is not None:
         utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})")
-        update_pickle(data_folder / "hashtags.pkl", hashtags_df, "tweet_id")
+        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_hashtags.pkl", hashtags_df, "tweet_id")
 
     if users_df is not None:
         utils.log_and_print(f"- Saving users ({len(users_df)})")
-        update_pickle(data_folder / "users.pkl", users_df, "user_id")
-
+        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_users.pkl", users_df, "user_id")
 
 def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
@@ -152,7 +155,6 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
             update_data_files(tweets)
-
 
 if __name__ == '__main__':
     # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve.txt' --number_of_tweets=1000
