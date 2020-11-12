@@ -3,6 +3,7 @@ Useful, generic functions
 """
 
 import os
+import re
 import sys
 
 from pathlib import Path
@@ -18,6 +19,7 @@ import tweepy
 import yaml
 
 from langdetect import detect, lang_detect_exception
+
 
 def connect_to_twitter_api(wait_on_rate_limit=False):
     twitter_keys = load_config()['default']['twitter']
@@ -130,7 +132,7 @@ def log_and_print(message):
         file.write("\n")
     print(message)
 
-    
+
 def read_data(file):
     df = pd.read_pickle(file, compression="gzip")
     return df
@@ -138,3 +140,12 @@ def read_data(file):
 
 def read_entities_to_retrieve_file(file):
     return [line.rstrip('\n') for line in open(file)]
+
+
+def remove_extra_spaces(text):
+    text = re.sub(" +", " ", text)
+    return text.strip()
+
+
+def remove_newline_characters(text):
+    return text.replace("\n", " ").replace("\r", "")

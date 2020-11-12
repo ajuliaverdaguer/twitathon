@@ -152,3 +152,5 @@ data/entities_to_retrieve.txt
 data/entities_automatic.txt
 data/entities_to_retrieve_test.txt
 data/log.txt
+data/raw/
+data/dataset/
