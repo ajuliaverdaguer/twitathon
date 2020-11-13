@@ -21,9 +21,8 @@ from tqdm import tqdm
 
 OUTPUT_PATH = "data/raw"
 
-LOG_FILE = f"{OUTPUT_PATH}/log.txt"
 MONTH_PREFIX = time.strftime("%Y-%m")
-
+LOG_FILE = f"{OUTPUT_PATH}/{MONTH_PREFIX}_log.txt"
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -129,19 +128,19 @@ def update_data_files(tweets):
     users_df = create_users_dataframe(tweets)
 
     if tweets_df is not None:
-        utils.log_and_print(f"- Saving tweets ({len(tweets_df)})")
+        utils.log_and_print(f"- Saving tweets ({len(tweets_df)})", LOG_FILE)
         update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_tweets.pkl", tweets_df, "tweet_id")
 
     if mentions_df is not None:
-        utils.log_and_print(f"- Saving mentions ({len(mentions_df)})")
+        utils.log_and_print(f"- Saving mentions ({len(mentions_df)})", LOG_FILE)
         update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_mentions.pkl", mentions_df, "tweet_id")
 
     if hashtags_df is not None:
-        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})")
+        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})", LOG_FILE)
         update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_hashtags.pkl", hashtags_df, "tweet_id")
 
     if users_df is not None:
-        utils.log_and_print(f"- Saving users ({len(users_df)})")
+        utils.log_and_print(f"- Saving users ({len(users_df)})", LOG_FILE)
         update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_users.pkl", users_df, "user_id")
 
 def retrieve_tweets_from_file(file, number_of_tweets=100):
@@ -149,7 +148,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
     for entity in tqdm(entities):
 
-        utils.log_and_print(entity)
+        utils.log_and_print(entity, LOG_FILE)
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
 
         # Only update when there is at least one tweet retrieved
