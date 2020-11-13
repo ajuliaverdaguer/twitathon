@@ -121,11 +121,10 @@ def retrieve_tweets_from_hashtag(hashtag, number_of_tweets=100, wait_on_rate_lim
     return tweets
 
 
-def log_and_print(message):
-    LOG_FILE = "data/log.txt"
+def log_and_print(message, log_file):
     now = datetime.datetime.now()
     now = now.strftime("%Y-%m-%d %H:%M:%S")
-    with open(LOG_FILE, "a") as file:
+    with open(log_file, "a") as file:
         file.write(f"{now} {message}")
         file.write("\n")
     print(message)
