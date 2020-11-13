@@ -34,6 +34,9 @@ The instruction that has to be included in the cron (including entering the virt
 
 `cd twitathon && /home/pi/twitathon/.venv/bin/python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve.txt' --number_of_tweets=1000`
 
-## Retrieved data
+## Data
 
-All the information in the retrieved tweets is stored in several pickle files in the `data` folder.
+Data is stored within the `data` folder following the sub-folder structure described below.
+
+- **`raw`** Data retrieved from Twitter.
+- **`dataset`** Files containing only id and processed message.
