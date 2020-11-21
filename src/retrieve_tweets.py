@@ -24,6 +24,7 @@ OUTPUT_PATH = "data/raw"
 MONTH_PREFIX = time.strftime("%Y-%m")
 LOG_FILE = f"{OUTPUT_PATH}/{MONTH_PREFIX}_log.txt"
 
+
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
     l_mentions = []
@@ -143,6 +144,7 @@ def update_data_files(tweets):
         utils.log_and_print(f"- Saving users ({len(users_df)})", LOG_FILE)
         update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_users.pkl", users_df, "user_id")
 
+
 def retrieve_tweets_from_file(file, number_of_tweets=100):
     entities = [line.rstrip('\n') for line in open(file)]
 
@@ -154,6 +156,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
             update_data_files(tweets)
+
 
 if __name__ == '__main__':
     # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve.txt' --number_of_tweets=1000
