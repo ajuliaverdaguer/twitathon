@@ -28,7 +28,7 @@ def update_entities_to_retrieve():
     hashtags = pd.read_csv(data_path / 'original_hashtags.csv', usecols=['hashtag']).rename(columns={'hashtag':
                                                                                                          'entity'})
 
-    pd.concat([users, hashtags]).to_csv(data_path / 'entities_to_retrieve_test.txt', header=False, index=False)
+    pd.concat([users, hashtags]).to_csv(data_path / 'entities_to_retrieve.txt', header=False, index=False)
     # TODO: Change 'entities_to_retrieve_test' to 'entities_to_retrieve' once we want to put this in "production"
 
 
