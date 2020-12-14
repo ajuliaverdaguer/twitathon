@@ -9,6 +9,7 @@ import os
 import sys
 
 source_path = str(Path(os.path.abspath(__file__)).parent)
+data_path = Path(os.path.abspath(__file__)).parent.parent / 'data'
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
@@ -85,19 +86,35 @@ def retrieve_from_spreadsheet(spreadsheet_id, cells_range, save_path):
         output.to_csv(save_path, index=False)
 
 
+def update_original_users_id():
+
+    # Load users to join together user name with user id
+    users = pd.read_pickle(data_path / 'users.pkl', compression='gzip')[['user_id', 'screen_name']]
+    users['screen_name'] = users['screen_name'].apply(lambda x: x.lower())
+
+    # Load a priori classification of users
+    original_users = pd.read_csv(data_path / 'original_users.csv')[['username', 'category']]
+    original_users['username'] = original_users['username'].apply(lambda x: x.replace('@', '').lower())
+
+    # Merge by username and return for each user_id, the corresponding a priori category
+    output = pd.merge(original_users, users, how='left', left_on='username', right_on='screen_name')
+
+    output[['user_id', 'username', 'category']].to_csv(data_path / 'original_users_ids.csv', index=False)
+
+
 def retrieve_users_hashtags():
     """
     Retrieve list of users and hashtags from "Hashtags and users" spreadsheet. This file contains one tab for
         Users and another one for Hashtags, and it is updated manually, following a predefined structure
     """
 
-    data_path = Path(source_path).parent / 'data'
-
     # Get spreadsheet_id from config file
     spreadsheet_id = utils.load_config()['default']['drive']['spreadsheet_id']
 
     retrieve_from_spreadsheet(spreadsheet_id, USERS_RANGE, data_path / 'original_users.csv')
     retrieve_from_spreadsheet(spreadsheet_id, HASHTAGS_RANGE, data_path / 'original_hashtags.csv')
+
+    update_original_users_id()
 
 
 if __name__ == '__main__':
