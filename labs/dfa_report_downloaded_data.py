@@ -15,20 +15,23 @@
 
 # cd ..
 
-# +
-import pandas as pd
-
-from src.utils.utils import read_data
-# -
+import gzip
+import pandas as pdd
+import pickle5 as pickle
 
 # # Settings
 
-PREFIX = "2020-12"
+PREFIX = "0000-01"
 
 
 # # Functions
 
 # +
+def read_data(file):
+    with gzip.open(file, "rb") as fh:
+        data = pickle.load(fh)
+    return data
+
 def print_dates_file(file):
     data = read_data(file)
     print(f"\tFrom {data['downloaded_at'].min()}")
@@ -69,13 +72,3 @@ def print_report(prefix):
 # # Report
 
 print_report(PREFIX)
-
-# !pip3 install pickle5
-import pickle5 as pickle
-with open(path_to_protocol5, "rb") as fh:
-  data = pickle.load(fh)
-
-import pickle5 as pickle
-
-
-
