@@ -6,12 +6,8 @@ import datetime
 import pandas as pd
 
 from utils import utils
-
-HASHTAGS_FILE = "data/hashtags.pkl"
-USERS_FILE = "data/users.pkl"
-TWEETS_FILE = "data/tweets.pkl"
-ENTITIES_AUTOMATIC_PICKLE_FILE = "data/entities_automatic.pkl"
-LOG_FILE = "data/log.txt"
+from utils.paths import PATH_HASHTAGS_RAW_CURRENT, PATH_USERS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, \
+    PATH_ENTITIES_AUTOMATIC_PICKLE, PATH_LOG_CURRENT
 
 TODAY = datetime.date.today()
 
@@ -42,33 +38,33 @@ def save_txt_file(file, entities_list):
 
 def log_changes(top_hashtags_df, top_users_df):
     if len(top_hashtags_df) > 0:
-        utils.log_and_print(f"Adding new hashtags to retrieve ({len(top_hashtags_df)})")
+        utils.log_and_print(f"Adding new hashtags to retrieve ({len(top_hashtags_df)})", PATH_LOG_CURRENT)
     if len(top_users_df) > 0:
-        utils.log_and_print(f"Adding new users to retrieve ({len(top_users_df)})")
+        utils.log_and_print(f"Adding new users to retrieve ({len(top_users_df)})", PATH_LOG_CURRENT)
+
 
 def update_entities_automatic(entities_to_retrieve_file, entities_automatic_txt_file):
-
     # Retrieve data
     print("- Retrieving data.")
 
     # Hashtags
-    hashtags_df = utils.read_data(HASHTAGS_FILE)
+    hashtags_df = utils.read_data(PATH_HASHTAGS_RAW_CURRENT)
     hashtags_df = hashtags_df[["hashtag", "downloaded_at"]]
 
     # Users
-    users_df = utils.read_data(USERS_FILE)
+    users_df = utils.read_data(PATH_USERS_RAW_CURRENT)
     users_df = users_df[["user_id", "screen_name"]]
     users_df = users_df.rename(columns={"screen_name": "user"})
 
     # Tweets
-    tweets_df = utils.read_data(TWEETS_FILE)
+    tweets_df = utils.read_data(PATH_TWEETS_RAW_CURRENT)
     tweets_df = tweets_df[["user_id", "downloaded_at"]]
 
     # Entities to retrieve
     entities_to_retrieve = utils.read_entities_to_retrieve_file(entities_to_retrieve_file)
 
     # Entities automatic
-    entities_automatic_df = read_entities_automatic(ENTITIES_AUTOMATIC_PICKLE_FILE)
+    entities_automatic_df = read_entities_automatic(PATH_ENTITIES_AUTOMATIC_PICKLE)
 
     # Get top entites
     print("- Getting top entities.")
@@ -105,8 +101,9 @@ def update_entities_automatic(entities_to_retrieve_file, entities_automatic_txt_
     print("- Saving files.")
 
     # Pickle
-    entities_automatic_df_updated = pd.concat([entities_automatic_df, top_hashtags_df, top_users_df]).reset_index(drop=True)
-    entities_automatic_df_updated.to_pickle(ENTITIES_AUTOMATIC_PICKLE_FILE, compression="gzip")
+    entities_automatic_df_updated = pd.concat([entities_automatic_df, top_hashtags_df, top_users_df]).reset_index(
+        drop=True)
+    entities_automatic_df_updated.to_pickle(PATH_ENTITIES_AUTOMATIC_PICKLE, compression="gzip")
 
     # Txt
     hashtags_list = [f"#{hashtag}" for hashtag in entities_automatic_df_updated["entity_name"][

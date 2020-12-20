@@ -139,18 +139,22 @@ venv.bak/
 # Pyre type checker
 #.pyre/
 
-# Config file
-config.yaml
-credentials.json
+# Config files
+config/config.yaml
+config/credentials_drive.json
+config/token.pickle
+config/paths.yaml
 
 sql/.project
 *.code-workspace
 
 *.idea
 
-data/entities_to_retrieve.txt
-data/entities_automatic.txt
-data/entities_to_retrieve_test.txt
-data/log.txt
-data/raw/
-data/dataset/
+# Entities files
+data/entities/entities_to_retrieve.txt
+data/entities/entities_automatic.txt
+data/entities/original_hashtags.csv
+data/entities/original_users.csv
+data/entities/original_users_ids.csv
+data/raw/*
+data/dataset/*
