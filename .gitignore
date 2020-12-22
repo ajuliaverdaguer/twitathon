@@ -143,7 +143,6 @@ venv.bak/
 config/config.yaml
 config/credentials_drive.json
 config/token.pickle
-config/paths.yaml
 
 sql/.project
 *.code-workspace
