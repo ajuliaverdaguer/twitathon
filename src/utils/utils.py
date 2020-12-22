@@ -12,6 +12,8 @@ source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
+from utils.paths import PATH_LOG_CURRENT
+
 import datetime
 import logging
 import pandas as pd
@@ -19,6 +21,7 @@ import tweepy
 import yaml
 
 from langdetect import detect, lang_detect_exception
+
 
 def connect_to_twitter_api(wait_on_rate_limit=False):
     twitter_keys = load_config()['default']['twitter']
@@ -94,7 +97,8 @@ def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=True,
     elif '#' in entity:
         return retrieve_tweets_from_hashtag(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
 
-    logging.error("Should pass a username or hashtag with the proper format (@, #)")
+    log_and_print(f"--- Error with {entity}: Should pass a username or hashtag with the proper format (@, #)",
+                  PATH_LOG_CURRENT)
     return []
 
 
