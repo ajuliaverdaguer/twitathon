@@ -97,9 +97,7 @@ def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=True,
     elif '#' in entity:
         return retrieve_tweets_from_hashtag(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
 
-    log_and_print(f"--- Error with {entity}: Should pass a username or hashtag with the proper format (@, #)",
-                  PATH_LOG_CURRENT)
-    return []
+    return None
 
 
 def retrieve_tweets_from_user(username, number_of_tweets=100, wait_on_rate_limit=False, max_id=None,

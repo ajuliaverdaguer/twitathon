@@ -155,6 +155,12 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
             utils.log_and_print(f"--- Error retrieving tweets from {entity}", PATH_LOG_CURRENT)
             continue
 
+        if tweets is None:
+            utils.log_and_print(f"--- Error with {entity}: "
+                                f"Should pass a username or hashtag with the proper format (@, #)",
+                                PATH_LOG_CURRENT)
+            continue
+
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
             update_data_files(tweets)
