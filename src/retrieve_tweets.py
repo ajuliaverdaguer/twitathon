@@ -17,8 +17,9 @@ from utils.paths import PATH_USERS_RAW_CURRENT, PATH_HASHTAGS_RAW_CURRENT, PATH_
 import datetime
 import fire
 import pandas as pd
-
+import tweepy
 from tqdm import tqdm
+
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -146,7 +147,13 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
     for entity in tqdm(entities):
 
         utils.log_and_print(entity, PATH_LOG_CURRENT)
-        tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
+
+        try:
+            tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
+
+        except tweepy.error.TweepError as e:
+            utils.log_and_print(f"--- Error retrieving tweets from {entity}", PATH_LOG_CURRENT)
+            continue
 
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
