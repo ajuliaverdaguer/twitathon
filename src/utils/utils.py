@@ -20,7 +20,6 @@ import yaml
 
 from langdetect import detect, lang_detect_exception
 
-
 def connect_to_twitter_api(wait_on_rate_limit=False):
     twitter_keys = load_config()['default']['twitter']
 
@@ -57,7 +56,11 @@ def detect_text_language(text):
 
 
 def load_config():
-    return open_yaml(Path(os.path.abspath(__file__)).parent.parent.parent / 'config.yaml')
+    return open_yaml(Path(os.path.abspath(__file__)).parent.parent.parent / 'config' / 'config.yaml')
+
+
+def load_paths():
+    return open_yaml(Path(os.path.abspath(__file__)).parent.parent.parent / 'config' / 'paths.yaml')
 
 
 def open_yaml(path):

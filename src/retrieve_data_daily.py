@@ -15,11 +15,10 @@ from automatically_download_hashtags_users_sheet import retrieve_users_hashtags
 from update_entities_to_retrieve_txt import update_entities_to_retrieve
 from update_entities_automatic import update_entities_automatic
 
-# SETTINGS
-ENTITIES_TO_RETRIEVE_FILE = "data/entities_to_retrieve.txt"
-ENTITIES_AUTOMATIC_FILE = "data/entities_automatic.txt"
-NUMBER_OF_TWEETS = 1000
+from utils.paths import PATH_ENTITIES_TO_RETRIEVE, PATH_ENTITIES_AUTOMATIC
 
+# SETTINGS
+NUMBER_OF_TWEETS = 1000
 
 def main():
 
@@ -32,13 +31,13 @@ def main():
     update_entities_to_retrieve()
 
     print("\nRETRIEVING TWEETS FROM MANUAL LIST...\n")
-    retrieve_tweets_from_file(file=ENTITIES_TO_RETRIEVE_FILE, number_of_tweets=NUMBER_OF_TWEETS)
+    retrieve_tweets_from_file(file=PATH_ENTITIES_TO_RETRIEVE, number_of_tweets=NUMBER_OF_TWEETS)
 
     print("\nUPDATING AUTOMATIC LIST OF HASHTAGS AND USERS TO RETRIEVE...\n")
-    update_entities_automatic(ENTITIES_TO_RETRIEVE_FILE, ENTITIES_AUTOMATIC_FILE)
+    update_entities_automatic(PATH_ENTITIES_TO_RETRIEVE, PATH_ENTITIES_AUTOMATIC)
 
     print("\nRETRIEVING TWEETS FROM AUTOMATIC LIST...\n")
-    retrieve_tweets_from_file(file=ENTITIES_AUTOMATIC_FILE, number_of_tweets=NUMBER_OF_TWEETS)
+    retrieve_tweets_from_file(file=PATH_ENTITIES_AUTOMATIC, number_of_tweets=NUMBER_OF_TWEETS)
 
 
 if __name__ == '__main__':

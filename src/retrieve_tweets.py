@@ -11,19 +11,14 @@ if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
 from utils import utils
+from utils.paths import PATH_USERS_RAW_CURRENT, PATH_HASHTAGS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, \
+    PATH_MENTIONS_RAW_CURRENT, PATH_LOG_CURRENT
 
 import datetime
 import fire
 import pandas as pd
-import time
 
 from tqdm import tqdm
-
-OUTPUT_PATH = "data/raw"
-
-MONTH_PREFIX = time.strftime("%Y-%m")
-LOG_FILE = f"{OUTPUT_PATH}/{MONTH_PREFIX}_log.txt"
-
 
 def create_tweets_mentions_hashtags_dataframes(tweets):
     l_tweets = []
@@ -129,20 +124,20 @@ def update_data_files(tweets):
     users_df = create_users_dataframe(tweets)
 
     if tweets_df is not None:
-        utils.log_and_print(f"- Saving tweets ({len(tweets_df)})", LOG_FILE)
-        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_tweets.pkl", tweets_df, "tweet_id")
+        utils.log_and_print(f"- Saving tweets ({len(tweets_df)})", PATH_LOG_CURRENT)
+        update_pickle(PATH_TWEETS_RAW_CURRENT, tweets_df, "tweet_id")
 
     if mentions_df is not None:
-        utils.log_and_print(f"- Saving mentions ({len(mentions_df)})", LOG_FILE)
-        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_mentions.pkl", mentions_df, "tweet_id")
+        utils.log_and_print(f"- Saving mentions ({len(mentions_df)})", PATH_LOG_CURRENT)
+        update_pickle(PATH_MENTIONS_RAW_CURRENT, mentions_df, "tweet_id")
 
     if hashtags_df is not None:
-        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})", LOG_FILE)
-        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_hashtags.pkl", hashtags_df, "tweet_id")
+        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})", PATH_LOG_CURRENT)
+        update_pickle(PATH_HASHTAGS_RAW_CURRENT, hashtags_df, "tweet_id")
 
     if users_df is not None:
-        utils.log_and_print(f"- Saving users ({len(users_df)})", LOG_FILE)
-        update_pickle(f"{OUTPUT_PATH}/{MONTH_PREFIX}_users.pkl", users_df, "user_id")
+        utils.log_and_print(f"- Saving users ({len(users_df)})", PATH_LOG_CURRENT)
+        update_pickle(PATH_USERS_RAW_CURRENT, users_df, "user_id")
 
 
 def retrieve_tweets_from_file(file, number_of_tweets=100):
@@ -150,7 +145,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
     for entity in tqdm(entities):
 
-        utils.log_and_print(entity, LOG_FILE)
+        utils.log_and_print(entity, PATH_LOG_CURRENT)
         tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
 
         # Only update when there is at least one tweet retrieved
@@ -159,5 +154,5 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
 
 if __name__ == '__main__':
-    # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities_to_retrieve.txt' --number_of_tweets=1000
+    # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities/entities_to_retrieve.txt' --number_of_tweets=1000
     fire.Fire()
