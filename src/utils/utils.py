@@ -12,8 +12,6 @@ source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
-from utils.paths import PATH_LOG_CURRENT
-
 import datetime
 import logging
 import pandas as pd
