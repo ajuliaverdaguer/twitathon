@@ -95,6 +95,7 @@ def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=True,
         return retrieve_tweets_from_hashtag(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
 
     logging.error("Should pass a username or hashtag with the proper format (@, #)")
+    return []
 
 
 def retrieve_tweets_from_user(username, number_of_tweets=100, wait_on_rate_limit=False, max_id=None,
