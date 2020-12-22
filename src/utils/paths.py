@@ -30,11 +30,15 @@ PATH_TWEETS_RAW = PATH_BASE / PATHS['data']['tweets_raw']
 PATH_MENTIONS_RAW = PATH_BASE / PATHS['data']['mentions_raw']
 PATH_LOG = PATH_BASE / PATHS['data']['log']
 
+
 # Data - Raw downloads current
-def include_month_prefix(original_path):
-    original_path_split = original_path.split("/")
+def include_month_prefix(original_str):
+    original_path = Path(original_str)
+
     month_prefix = time.strftime("%Y-%m")
-    return f"{original_path_split[0]}{month_prefix}_{original_path_split[1]}"
+
+    return str(Path(original_path.parent) / f"{month_prefix}_{original_path.name}")
+
 
 PATH_USERS_RAW_CURRENT = PATH_BASE / include_month_prefix(PATHS['data']['users_raw'])
 PATH_HASHTAGS_RAW_CURRENT = PATH_BASE / include_month_prefix(PATHS['data']['hashtags_raw'])
