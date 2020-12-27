@@ -14,5 +14,5 @@ default:
                 hashtags_raw: 'data/raw/hashtags.pkl'
                 tweets_raw: 'data/raw/tweets.pkl'
                 mentions_raw: 'data/raw/mentions.pkl'
-                log: 'data/raw/log.pkl'
+                log: 'data/raw/log.txt'
 
