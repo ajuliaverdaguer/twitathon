@@ -18,6 +18,7 @@ import pandas as pd
 
 from utils.paths import PATH_ORIGINAL_USERS, PATH_ORIGINAL_HASHTAGS, PATH_ENTITIES_TO_RETRIEVE
 
+
 def update_entities_to_retrieve():
     """
     Read users and hashtags from files coming from Drive spreadsheet and merge them together in the
