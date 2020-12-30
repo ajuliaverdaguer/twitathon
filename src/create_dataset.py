@@ -88,6 +88,10 @@ print("- Cleaning text...")
 dataset["text"] = dataset["text"].apply(clean_text)
 dataset = dataset[dataset["text"] != ""].reset_index(drop=True)
 
+# Remove duplicates
+print("- Removing duplicates...")
+dataset = dataset.drop_duplicates(subset="text").reset_index(drop=True)
+
 # Remove messages with too much entities
 print("- Removing messages with too much entities...")
 dataset["entity_ratio"] = dataset["text"].apply(calculate_entity_word_ratio)
