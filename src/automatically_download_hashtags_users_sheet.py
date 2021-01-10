@@ -23,7 +23,7 @@ import os.path
 import pandas as pd
 import pickle
 
-from utils.paths import PATH_ORIGINAL_USERS, PATH_TOKEN, PATH_CREDENTIALS_DRIVE, PATH_ORIGINAL_HASHTAGS, PATH_USERS_RAW, \
+from utils.paths import PATH_ORIGINAL_USERS, PATH_TOKEN, PATH_CREDENTIALS_DRIVE, PATH_ORIGINAL_HASHTAGS, \
     PATH_ORIGINAL_USERS_IDS
 
 # If modifying these scopes, delete the file token.pickle.
@@ -87,21 +87,6 @@ def retrieve_from_spreadsheet(spreadsheet_id, cells_range, save_path):
         output.to_csv(save_path, index=False)
 
 
-def update_original_users_id():
-    # Load users to join together user name with user id
-    users = pd.read_pickle(PATH_USERS_RAW, compression='gzip')[['user_id', 'screen_name']]
-    users['screen_name'] = users['screen_name'].apply(lambda x: x.lower())
-
-    # Load a priori classification of users
-    original_users = pd.read_csv(PATH_ORIGINAL_USERS)[['username', 'category']]
-    original_users['username'] = original_users['username'].apply(lambda x: x.replace('@', '').lower())
-
-    # Merge by username and return for each user_id, the corresponding a priori category
-    output = pd.merge(original_users, users, how='left', left_on='username', right_on='screen_name')
-
-    output[['user_id', 'username', 'category']].to_csv(PATH_ORIGINAL_USERS_IDS, index=False)
-
-
 def retrieve_users_hashtags():
     """
     Retrieve list of users and hashtags from "Hashtags and users" spreadsheet. This file contains one tab for
@@ -113,8 +98,6 @@ def retrieve_users_hashtags():
 
     retrieve_from_spreadsheet(spreadsheet_id, USERS_RANGE, PATH_ORIGINAL_USERS)
     retrieve_from_spreadsheet(spreadsheet_id, HASHTAGS_RANGE, PATH_ORIGINAL_HASHTAGS)
-
-    update_original_users_id()
 
 
 if __name__ == '__main__':
