@@ -1,16 +1,17 @@
 """
-
+Script aiming at updating a file linking original users with their corresponding Twitter ID
 """
 
 import datetime as dt
 import fire
 import gzip
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import pickle5 as pickle
 import re
 
-from utils.paths import PATH_FOLDER_RAW, PATH_ORIGINAL_USERS, PATH_ORIGINAL_USERS_IDS, PATH_USERS_RAW
+from utils.paths import PATH_FOLDER_RAW, PATH_ORIGINAL_USERS, PATH_ORIGINAL_USERS_IDS
 
 RE_FILES = r"202(\d{1})-(\d{2})_users.pkl"
 
@@ -54,13 +55,16 @@ def update_original_users_id():
     # Merge by username and return for each user_id, the corresponding a priori category
     output = pd.merge(original_users, users, how='left', left_on='username', right_on='screen_name')
 
+    # Remove users without user identifier
+    output = output[~pd.isna(output.user_id)]
+
     if Path(PATH_ORIGINAL_USERS_IDS).exists():
 
-        existent = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
+        existent = pd.read_csv(PATH_ORIGINAL_USERS_IDS, dtype={'user_id': np.int64})
         output = pd.concat([existent, output])
 
-    # TODO: What should be do with users from whom we do not have any tweet and, therefore, there is no user_id?
-    output[['user_id', 'username', 'category']].to_csv(PATH_ORIGINAL_USERS_IDS, index=False)
+    output['user_id'] = output['user_id'].astype(int)
+    output[['user_id', 'username', 'category']].drop_duplicates().to_csv(PATH_ORIGINAL_USERS_IDS, index=False)
 
 
 if __name__ == '__main__':

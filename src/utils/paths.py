@@ -24,7 +24,6 @@ PATH_ORIGINAL_USERS = PATH_BASE / PATHS['data']['original_users']
 PATH_ORIGINAL_USERS_IDS = PATH_BASE / PATHS['data']['original_users_ids']
 
 # Data - Raw downloads
-PATH_USERS_RAW = PATH_BASE / PATHS['data']['users_raw']
 PATH_HASHTAGS_RAW = PATH_BASE / PATHS['data']['hashtags_raw']
 PATH_TWEETS_RAW = PATH_BASE / PATHS['data']['tweets_raw']
 PATH_MENTIONS_RAW = PATH_BASE / PATHS['data']['mentions_raw']
