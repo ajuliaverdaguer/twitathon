@@ -15,4 +15,5 @@ default:
                 tweets_raw: 'data/raw/tweets.pkl'
                 mentions_raw: 'data/raw/mentions.pkl'
                 log: 'data/raw/log.txt'
+                folder_raw: 'data/raw/'
 
