@@ -68,7 +68,7 @@ def retrieve_from_spreadsheet(spreadsheet_id, cells_range, save_path):
         with open(PATH_TOKEN, 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('sheets', 'v4', credentials=creds)
+    service = build('sheets', 'v4', credentials=creds, cache_discovery=False)
 
     # Call the Sheets API
     sheet = service.spreadsheets()
