@@ -17,29 +17,7 @@ if source_path not in sys.path:
 import fire
 import pandas as pd
 
-
-def check_a_priori_classification(type='user'):
-
-    if type == 'user':
-
-        # Load users to join together user name with user id
-        users = pd.read_pickle(data_path / 'users.pkl', compression='gzip')[['user_id', 'screen_name']]
-        users['screen_name'] = users['screen_name'].apply(lambda x: x.lower())
-
-        # Load a priori classification of users
-        original_users = pd.read_csv(data_path / 'original_users.csv')[['username', 'category']]
-        original_users['username'] = original_users['username'].apply(lambda x: x.replace('@', '').lower())
-
-        # Merge by username and return for each user_id, the corresponding a priori category
-        output = pd.merge(original_users, users, how='left', left_on='username', right_on='screen_name').dropna()
-
-        return output[['user_id', 'category']]
-
-    if type == 'hashtag':
-
-        return None
-
-    return None
+from utils.paths import PATH_ORIGINAL_HASHTAGS, PATH_ORIGINAL_USERS_IDS
 
 
 def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
@@ -66,7 +44,7 @@ def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
 
 def check_user(user_id):
 
-    data = pd.read_csv(data_path / 'original_users_ids.csv')
+    data = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
 
     if user_id in data['user_id']:
 
@@ -108,8 +86,8 @@ def apply_racist_user_hashtag_rule(user_id, tweet, a_priori_user_classification=
 
 def label_tweets_from_heuristics(tweets, rules=None):
 
-    user_classification = pd.read_csv(data_path / 'original_users_ids.csv')
-    hashtag_classification = pd.read_csv(data_path / 'original_hashtags.csv')
+    user_classification = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
+    hashtag_classification = pd.read_csv(PATH_ORIGINAL_HASHTAGS)
 
     for rule in rules:
 

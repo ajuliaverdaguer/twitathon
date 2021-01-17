@@ -28,6 +28,7 @@ PATH_HASHTAGS_RAW = PATH_BASE / PATHS['data']['hashtags_raw']
 PATH_TWEETS_RAW = PATH_BASE / PATHS['data']['tweets_raw']
 PATH_MENTIONS_RAW = PATH_BASE / PATHS['data']['mentions_raw']
 PATH_LOG = PATH_BASE / PATHS['data']['log']
+PATH_FOLDER_DATASET = PATH_BASE / PATHS['data']['folder_dataset']
 PATH_FOLDER_RAW = PATH_BASE / PATHS['data']['folder_raw']
 
 
