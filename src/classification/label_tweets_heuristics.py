@@ -86,6 +86,8 @@ def apply_racist_user_hashtag_rule(user_id, tweet, a_priori_user_classification=
 
 def label_tweets_from_heuristics(tweets, rules=None):
 
+    tweets['user_id'] = tweets['user_id'].apply(int)
+
     user_classification = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
     hashtag_classification = pd.read_csv(PATH_ORIGINAL_HASHTAGS)
 
@@ -117,7 +119,7 @@ if __name__ == '__main__':
     # fire.Fire()
 
     # For debugging
-    tweets = pd.read_pickle(data_path / 'tweets.pkl', compression="gzip")[['tweet_id', 'user_id', 'text']][1:1000]
+    tweets = pd.read_pickle(data_path / 'tweets.pkl', compression="gzip")[['tweet_id', 'user_id', 'text']][1000:10000]
     labelled = label_tweets_from_heuristics(tweets, rules=['apply_antiracist_user_rule',
                                                            'apply_racist_user_hashtag_rule'])
     print('Done')

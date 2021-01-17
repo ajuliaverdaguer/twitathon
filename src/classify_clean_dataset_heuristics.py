@@ -36,6 +36,7 @@ def classify_clean_dataset():
 
     print("- Classifying tweets from a priori rules...")
     data['user_id'] = 'abc'  # TODO: Remove once this column comes from create_dataset.py!
+    data['user_id'] = data['user_id'].apply(int)
     output = label_tweets_from_heuristics(data, rules=['apply_antiracist_user_rule', 'apply_racist_user_hashtag_rule'])
 
     print("- Removing unnececessary columns...")
