@@ -10,6 +10,7 @@ from utils.utils import read_data, detect_text_language, remove_extra_spaces, re
 DATASET_VERSION = "01"
 LANGUAGE = "es"
 THRESHOLD_ENTITY_WORDS = 0.8
+THRESHOLD_MINIMUM_WORDS = 5
 
 # Paths
 RAW_DATA_FOLDER = "data/raw"
@@ -64,6 +65,21 @@ def calculate_entity_word_ratio(message):
     return len(hashtags) / len(words)
 
 
+def filter_messages_with_too_much_entities(dataset, threshold_entity_words):
+    df = dataset.copy()
+    df["entity_ratio"] = df["text"].apply(calculate_entity_word_ratio)
+    df = df[df["entity_ratio"] < threshold_entity_words].reset_index(drop=True)
+    return df.drop(columns="entity_ratio")
+
+
+def filter_too_short_messages(dataset, threshold_minimum_words):
+    df = dataset.copy()
+    df = dataset.copy()
+    df["num_words"] = df["text"].apply(lambda x: len(x.split(" ")))
+    df = df[df["num_words"] >= threshold_minimum_words].reset_index(drop=True)
+    return df.drop(columns="num_words")
+
+
 # Retrieve data
 print("Retrieving data...")
 files_tweets = find_files(RAW_DATA_FOLDER, "tweets.pkl")
@@ -92,11 +108,10 @@ dataset = dataset[dataset["text"] != ""].reset_index(drop=True)
 print("- Removing duplicates...")
 dataset = dataset.drop_duplicates(subset="text").reset_index(drop=True)
 
-# Remove messages with too much entities
-print("- Removing messages with too much entities...")
-dataset["entity_ratio"] = dataset["text"].apply(calculate_entity_word_ratio)
-dataset = dataset[dataset["entity_ratio"] < THRESHOLD_ENTITY_WORDS].reset_index(drop=True)
-dataset = dataset.drop(columns="entity_ratio")
+# Filter invalid messages
+print("- Filtering invalid messages...")
+dataset = filter_messages_with_too_much_entities(dataset, THRESHOLD_ENTITY_WORDS)
+dataset = filter_too_short_messages(dataset, THRESHOLD_MINIMUM_WORDS)
 
 # Filter by language
 print("- Filtering by language...")
