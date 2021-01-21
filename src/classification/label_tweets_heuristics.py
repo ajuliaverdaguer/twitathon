@@ -16,6 +16,7 @@ if source_path not in sys.path:
 
 import fire
 import pandas as pd
+from tqdm import tqdm
 
 from utils.paths import PATH_ORIGINAL_HASHTAGS, PATH_ORIGINAL_USERS_IDS
 
@@ -34,7 +35,7 @@ def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
         if hashtag in tweet_text:
             available_hashtags.append(category)
 
-    unique_categories = set(available_hashtags)
+    unique_categories = list(set(available_hashtags))
     if len(unique_categories) == 1:
         return unique_categories[0]
 
@@ -59,9 +60,9 @@ def apply_antiracist_user_rule(user_id, a_priori_user_classification=None):
 
         return 0 if check_user(user_id) == 'antiracist' else None
 
-    if user_id in a_priori_user_classification['user_id']:
+    if user_id in a_priori_user_classification['user_id'].values:
 
-        if a_priori_user_classification[a_priori_user_classification['user_id'] == user_id, 'category'] == 'antiracist':
+        if a_priori_user_classification[a_priori_user_classification['user_id'] == user_id].reset_index(drop=True).category[0] == 'antiracist':
 
             return 0
 
@@ -75,9 +76,9 @@ def apply_racist_user_hashtag_rule(user_id, tweet, a_priori_user_classification=
 
         return 1 if (check_user(user_id) == 'racist') & (check_hashtags(tweet) == 'racist') else None
 
-    if user_id in a_priori_user_classification['user_id']:
+    if user_id in a_priori_user_classification['user_id'].values:
 
-        if (a_priori_user_classification[a_priori_user_classification['user_id'] == user_id, 'category'] == 'racist') &\
+        if (a_priori_user_classification[a_priori_user_classification['user_id'] == user_id].reset_index(drop=True).category[0] == 'racist') &\
                 (check_hashtags(tweet, a_priori_hashtag_classification) == 'racist'):
             return 1
 
@@ -104,7 +105,7 @@ def label_tweets_from_heuristics(tweets, rules=None):
 
             tweets[column_name] = None
 
-            for i, row in tweets.iterrows():
+            for i, row in tqdm(tweets.iterrows(), desc='Tweets', total=tweets.shape[0]):
 
                 tweets.loc[i, column_name] = apply_racist_user_hashtag_rule(row['user_id'], row['text'],
                                                                             user_classification,
