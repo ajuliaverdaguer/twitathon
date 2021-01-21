@@ -79,8 +79,8 @@ print("- Filtering-out retweets...")
 dataset = dataset[dataset["type"] != "rt"].reset_index(drop=True)
 
 # Remove unnecessary columns
-print("- Removing unncecessary columns...")
-columns_keep = ["tweet_id", "text"]
+print("- Removing unnecessary columns...")
+columns_keep = ["tweet_id", "text", "user_id"]
 dataset = dataset[columns_keep]
 
 # Clean text
