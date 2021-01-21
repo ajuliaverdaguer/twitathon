@@ -16,30 +16,9 @@ if source_path not in sys.path:
 
 import fire
 import pandas as pd
+from tqdm import tqdm
 
-
-def check_a_priori_classification(type='user'):
-
-    if type == 'user':
-
-        # Load users to join together user name with user id
-        users = pd.read_pickle(data_path / 'users.pkl', compression='gzip')[['user_id', 'screen_name']]
-        users['screen_name'] = users['screen_name'].apply(lambda x: x.lower())
-
-        # Load a priori classification of users
-        original_users = pd.read_csv(data_path / 'original_users.csv')[['username', 'category']]
-        original_users['username'] = original_users['username'].apply(lambda x: x.replace('@', '').lower())
-
-        # Merge by username and return for each user_id, the corresponding a priori category
-        output = pd.merge(original_users, users, how='left', left_on='username', right_on='screen_name').dropna()
-
-        return output[['user_id', 'category']]
-
-    if type == 'hashtag':
-
-        return None
-
-    return None
+from utils.paths import PATH_ORIGINAL_HASHTAGS, PATH_ORIGINAL_USERS_IDS
 
 
 def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
@@ -56,7 +35,7 @@ def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
         if hashtag in tweet_text:
             available_hashtags.append(category)
 
-    unique_categories = set(available_hashtags)
+    unique_categories = list(set(available_hashtags))
     if len(unique_categories) == 1:
         return unique_categories[0]
 
@@ -66,7 +45,7 @@ def check_hashtags(tweet_text, a_priori_hashtag_classification=None):
 
 def check_user(user_id):
 
-    data = pd.read_csv(data_path / 'original_users_ids.csv')
+    data = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
 
     if user_id in data['user_id']:
 
@@ -81,9 +60,9 @@ def apply_antiracist_user_rule(user_id, a_priori_user_classification=None):
 
         return 0 if check_user(user_id) == 'antiracist' else None
 
-    if user_id in a_priori_user_classification['user_id']:
+    if user_id in a_priori_user_classification['user_id'].values:
 
-        if a_priori_user_classification[a_priori_user_classification['user_id'] == user_id, 'category'] == 'antiracist':
+        if a_priori_user_classification[a_priori_user_classification['user_id'] == user_id].reset_index(drop=True).category[0] == 'antiracist':
 
             return 0
 
@@ -97,9 +76,9 @@ def apply_racist_user_hashtag_rule(user_id, tweet, a_priori_user_classification=
 
         return 1 if (check_user(user_id) == 'racist') & (check_hashtags(tweet) == 'racist') else None
 
-    if user_id in a_priori_user_classification['user_id']:
+    if user_id in a_priori_user_classification['user_id'].values:
 
-        if (a_priori_user_classification[a_priori_user_classification['user_id'] == user_id, 'category'] == 'racist') &\
+        if (a_priori_user_classification[a_priori_user_classification['user_id'] == user_id].reset_index(drop=True).category[0] == 'racist') &\
                 (check_hashtags(tweet, a_priori_hashtag_classification) == 'racist'):
             return 1
 
@@ -108,8 +87,10 @@ def apply_racist_user_hashtag_rule(user_id, tweet, a_priori_user_classification=
 
 def label_tweets_from_heuristics(tweets, rules=None):
 
-    user_classification = pd.read_csv(data_path / 'original_users_ids.csv')
-    hashtag_classification = pd.read_csv(data_path / 'original_hashtags.csv')
+    tweets['user_id'] = tweets['user_id'].apply(int)
+
+    user_classification = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
+    hashtag_classification = pd.read_csv(PATH_ORIGINAL_HASHTAGS)
 
     for rule in rules:
 
@@ -124,7 +105,7 @@ def label_tweets_from_heuristics(tweets, rules=None):
 
             tweets[column_name] = None
 
-            for i, row in tweets.iterrows():
+            for i, row in tqdm(tweets.iterrows(), desc='Tweets', total=tweets.shape[0]):
 
                 tweets.loc[i, column_name] = apply_racist_user_hashtag_rule(row['user_id'], row['text'],
                                                                             user_classification,
@@ -139,7 +120,7 @@ if __name__ == '__main__':
     # fire.Fire()
 
     # For debugging
-    tweets = pd.read_pickle(data_path / 'tweets.pkl', compression="gzip")[['tweet_id', 'user_id', 'text']][1:1000]
+    tweets = pd.read_pickle(data_path / 'tweets.pkl', compression="gzip")[['tweet_id', 'user_id', 'text']][1000:10000]
     labelled = label_tweets_from_heuristics(tweets, rules=['apply_antiracist_user_rule',
                                                            'apply_racist_user_hashtag_rule'])
     print('Done')
