@@ -23,7 +23,7 @@ from src.utils.utils import read_data
 
 # # Settings
 
-NUM = 2000
+NUM = 250
 DATASET_VERSION = "01"
 LABELLER = "didac.fortuny"
 SUBSET_NUM = "01"
@@ -33,14 +33,23 @@ SEED = 31
 # ## Paths
 
 DATASET_PATH = f"data/dataset/dataset_v{DATASET_VERSION}.pkl"
-OUTPUT_PATH = f"data/labels/before_labeling/{LABELLER}/{LABELLER}_{SUBSET_NUM}.csv"
+CLASSIFIED_DATASET_PATH = "data/dataset/dataset_label.pkl"
+OUTPUT_PATH = f"data/labels/before_labeling/{LABELLER}_{SUBSET_NUM}.csv"
 
 # # Retrieve dataset
 
 dataset = read_data(DATASET_PATH)
+dataset.head(5)
 
-import random
-dataset["is_hate"] = [random.choice(["y", "n"]) for i in range(len(dataset))]
+# # Assign pre-label
+
+dataset_classified = read_data(CLASSIFIED_DATASET_PATH)
+dataset_classified = dataset_classified[["tweet_id", "is_hate"]]
+dataset_classified = dataset_classified.fillna("u")
+dataset_classified = dataset_classified.replace([True, False], ["y", "n"])
+dataset_classified.head(5)
+
+dataset = dataset.merge(dataset_classified, on="tweet_id", how="left")
 
 
 # # Generate labelling set

@@ -23,12 +23,11 @@ def find_files(folder, name):
     return list(Path(folder).rglob(f"*{name}"))
 
 
-def merge_files(files):
+def merge_files(files, id_field):
     data = list()
     for file in files:
         data.append(read_data(file))
     data = pd.concat(data)
-    id_field = data.columns[0]
     data = data.sort_values("downloaded_at")
     return data.drop_duplicates(subset=[id_field], keep="last").reset_index(drop=True)
 
@@ -74,7 +73,6 @@ def filter_messages_with_too_much_entities(dataset, threshold_entity_words):
 
 def filter_too_short_messages(dataset, threshold_minimum_words):
     df = dataset.copy()
-    df = dataset.copy()
     df["num_words"] = df["text"].apply(lambda x: len(x.split(" ")))
     df = df[df["num_words"] >= threshold_minimum_words].reset_index(drop=True)
     return df.drop(columns="num_words")
@@ -84,7 +82,7 @@ def filter_too_short_messages(dataset, threshold_minimum_words):
 print("Retrieving data...")
 files_tweets = find_files(RAW_DATA_FOLDER, "tweets.pkl")
 print(f"- {len(files_tweets)} files found.")
-tweets = merge_files(files_tweets)
+tweets = merge_files(files_tweets, id_field="tweet_id")
 
 # Create dataset
 print("Creating dataset...")
