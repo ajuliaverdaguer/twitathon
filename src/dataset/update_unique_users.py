@@ -48,7 +48,7 @@ def update_original_users_id():
 
     users['screen_name'] = users['screen_name'].apply(lambda x: x.lower())
 
-    # Load a priori classification of users
+    # Load a priori dataset of users
     original_users = pd.read_csv(PATH_ORIGINAL_USERS)[['username', 'category']]
     original_users['username'] = original_users['username'].apply(lambda x: x.replace('@', '').lower())
 

@@ -6,10 +6,11 @@ import datetime
 import pandas as pd
 
 from utils import utils
-from utils.paths import PATH_HASHTAGS_RAW_CURRENT, PATH_USERS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, \
-    PATH_ENTITIES_AUTOMATIC_PICKLE, PATH_LOG_CURRENT
+from utils.paths import PATH_USERS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, PATH_ENTITIES_AUTOMATIC_PICKLE, \
+    PATH_LOG_CURRENT
 
 TODAY = datetime.date.today()
+TOP_NUMBER = 10
 
 
 def read_entities_automatic(file):
@@ -47,18 +48,14 @@ def update_entities_automatic(entities_to_retrieve_file, entities_automatic_txt_
     # Retrieve data
     print("- Retrieving data.")
 
-    # Hashtags
-    hashtags_df = utils.read_data(PATH_HASHTAGS_RAW_CURRENT)
-    hashtags_df = hashtags_df[["hashtag", "downloaded_at"]]
-
     # Users
     users_df = utils.read_data(PATH_USERS_RAW_CURRENT)
     users_df = users_df[["user_id", "screen_name"]]
     users_df = users_df.rename(columns={"screen_name": "user"})
 
     # Tweets
-    tweets_df = utils.read_data(PATH_TWEETS_RAW_CURRENT)
-    tweets_df = tweets_df[["user_id", "downloaded_at"]]
+    tweets_df_full = utils.read_data(PATH_TWEETS_RAW_CURRENT)
+    tweets_df = tweets_df_full[["user_id", "downloaded_at"]]
 
     # Entities to retrieve
     entities_to_retrieve = utils.read_entities_to_retrieve_file(entities_to_retrieve_file)
@@ -69,9 +66,16 @@ def update_entities_automatic(entities_to_retrieve_file, entities_automatic_txt_
     # Get top entites
     print("- Getting top entities.")
 
-    top_hashtags_df = get_top_entities_today(hashtags_df, "hashtag")
+    hashtags_list = pd.Series([word[1:] for text in tweets_df_full["text"] for word in text.split(" ") if
+                               ((len(word) > 0) and (word[0] == "#"))])
+    top_hashtags = list(hashtags_list.value_counts()[0:TOP_NUMBER].index)
+    top_hashtags_df = pd.DataFrame({"entity_name": top_hashtags})
+    top_hashtags_df["entity_type"] = "hashtag"
+    top_hashtags_df["date_top"] = TODAY
+    top_hashtags_df["added_at"] = datetime.datetime.now()
+
     users_df = tweets_df.merge(users_df, on="user_id", how="left").drop(columns=["user_id"])
-    top_users_df = get_top_entities_today(users_df, "user")
+    top_users_df = get_top_entities_today(users_df, "user", TOP_NUMBER)
 
     # Filter entities in entities to retrieve
     print("- Filtering entities in entities to retrieve.")

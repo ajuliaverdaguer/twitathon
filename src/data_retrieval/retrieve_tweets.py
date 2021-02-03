@@ -11,8 +11,7 @@ if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
 from utils import utils
-from utils.paths import PATH_USERS_RAW_CURRENT, PATH_HASHTAGS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, \
-    PATH_MENTIONS_RAW_CURRENT, PATH_LOG_CURRENT
+from utils.paths import PATH_USERS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, PATH_MENTIONS_RAW_CURRENT, PATH_LOG_CURRENT
 
 import datetime
 import fire
@@ -21,10 +20,9 @@ import tweepy
 from tqdm import tqdm
 
 
-def create_tweets_mentions_hashtags_dataframes(tweets):
+def create_tweets_mentions_dataframes(tweets):
     l_tweets = []
     l_mentions = []
-    l_hashtags = []
 
     for tweet in tweets:
 
@@ -63,17 +61,13 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
         if tweet_type == "quote":
             tweet = tweet["quoted_status"]
 
-        # Parse entities in tweet (mentions and hashtags)
+        # Parse entities in tweet (mentions)
+        # Parse entities in tweet (mentions)
         if 'entities' in tweet_keys:
             for mention in tweet['entities']['user_mentions']:
                 tmp_mentions = pd.DataFrame({'tweet_id': [str(tweet_id)],
                                              'user_id': [str(mention['id'])]})
                 l_mentions.append(tmp_mentions)
-
-            for hashtag in tweet['entities']['hashtags']:
-                tmp_hash = pd.DataFrame({'tweet_id': str(tweet_id),
-                                         'hashtag': [hashtag['text']]})
-                l_hashtags.append(tmp_hash)
 
         l_tweets.append(tmp_tweets)
 
@@ -87,12 +81,7 @@ def create_tweets_mentions_hashtags_dataframes(tweets):
     else:
         df_mentions = None
 
-    if len(l_hashtags) > 0:
-        df_hashtags = pd.concat(l_hashtags).reset_index(drop=True)
-    else:
-        df_hashtags = None
-
-    return df_tweets, df_mentions, df_hashtags
+    return df_tweets, df_mentions
 
 
 def create_users_dataframe(tweets):
@@ -121,7 +110,7 @@ def update_pickle(file, data, id_field):
 
 
 def update_data_files(tweets):
-    tweets_df, mentions_df, hashtags_df = create_tweets_mentions_hashtags_dataframes(tweets)
+    tweets_df, mentions_df = create_tweets_mentions_dataframes(tweets)
     users_df = create_users_dataframe(tweets)
 
     if tweets_df is not None:
@@ -131,10 +120,6 @@ def update_data_files(tweets):
     if mentions_df is not None:
         utils.log_and_print(f"- Saving mentions ({len(mentions_df)})", PATH_LOG_CURRENT)
         update_pickle(PATH_MENTIONS_RAW_CURRENT, mentions_df, "tweet_id")
-
-    if hashtags_df is not None:
-        utils.log_and_print(f"- Saving hashtags ({len(hashtags_df)})", PATH_LOG_CURRENT)
-        update_pickle(PATH_HASHTAGS_RAW_CURRENT, hashtags_df, "tweet_id")
 
     if users_df is not None:
         utils.log_and_print(f"- Saving users ({len(users_df)})", PATH_LOG_CURRENT)
