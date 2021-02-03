@@ -27,11 +27,11 @@ def main():
     print("############################################")
 
     print("\nUPDATING MANUAL LIST OF HASHTAGS AND USERS TO RETRIEVE...\n")
-    #retrieve_users_hashtags()
-    #update_entities_to_retrieve()
+    retrieve_users_hashtags()
+    update_entities_to_retrieve()
 
     print("\nRETRIEVING TWEETS FROM MANUAL LIST...\n")
-    #retrieve_tweets_from_file(file=PATH_ENTITIES_TO_RETRIEVE, number_of_tweets=NUMBER_OF_TWEETS)
+    retrieve_tweets_from_file(file=PATH_ENTITIES_TO_RETRIEVE, number_of_tweets=NUMBER_OF_TWEETS)
 
     print("\nUPDATING AUTOMATIC LIST OF HASHTAGS AND USERS TO RETRIEVE...\n")
     update_entities_automatic(PATH_ENTITIES_TO_RETRIEVE, PATH_ENTITIES_AUTOMATIC)
