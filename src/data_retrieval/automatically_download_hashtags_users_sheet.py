@@ -23,8 +23,7 @@ import os.path
 import pandas as pd
 import pickle
 
-from utils.paths import PATH_ORIGINAL_USERS, PATH_TOKEN, PATH_CREDENTIALS_DRIVE, PATH_ORIGINAL_HASHTAGS, \
-    PATH_ORIGINAL_USERS_IDS
+from utils.paths import PATH_ORIGINAL_USERS, PATH_ORIGINAL_HASHTAGS, PATH_TOKEN, PATH_CREDENTIALS_DRIVE
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']

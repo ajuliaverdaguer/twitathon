@@ -35,7 +35,7 @@ def classify_clean_dataset():
     data = read_data(CLEAN_DATASET)
     data['user_id'] = data['user_id'].apply(int)
 
-    print("- Reading a priori classification and keeping tweets only from those users...")
+    print("- Reading a priori dataset and keeping tweets only from those users...")
     user_classification = pd.read_csv(PATH_ORIGINAL_USERS_IDS)
     data = data[data['user_id'].isin(user_classification['user_id'])]
 
