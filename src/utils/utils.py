@@ -89,10 +89,10 @@ def open_yaml(path):
 
 def retrieve_from_twitter(entity, number_of_tweets=100, wait_on_rate_limit=True, max_id=None,
                           since_id=None):
-    if '@' in entity:
+    if entity[0] == '@':
         return retrieve_tweets_from_user(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
 
-    elif '#' in entity:
+    else:
         return retrieve_tweets_from_hashtag(entity, number_of_tweets, wait_on_rate_limit, max_id, since_id)
 
     return None
