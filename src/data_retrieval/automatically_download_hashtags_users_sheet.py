@@ -8,7 +8,7 @@ from pathlib import Path
 import os
 import sys
 
-source_path = str(Path(os.path.abspath(__file__)).parent)
+source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
@@ -100,7 +100,7 @@ def retrieve_users_hashtags():
 
 
 if __name__ == '__main__':
-    # python src/automatically_download_hashtags_users_sheet.py retrieve_users_hashtags
+    # python src/data_retrieval/automatically_download_hashtags_users_sheet.py retrieve_users_hashtags
     fire.Fire()
 
     # For debugging

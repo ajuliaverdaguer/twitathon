@@ -152,5 +152,5 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
 
 if __name__ == '__main__':
-    # python src/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities/entities_to_retrieve.txt' --number_of_tweets=1000
+    # python src/data_retrieval/retrieve_tweets.py retrieve_tweets_from_file --file='data/entities/entities_to_retrieve.txt' --number_of_tweets=1000
     fire.Fire()
