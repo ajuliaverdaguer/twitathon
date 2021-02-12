@@ -157,3 +157,7 @@ data/entities/original_users.csv
 data/entities/original_users_ids.csv
 data/raw/*
 data/dataset/*
+
+#PyTorch
+hparams.yaml
+events.out.*
