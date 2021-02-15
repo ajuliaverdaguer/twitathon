@@ -2,12 +2,12 @@
 
 import nlp
 import pytorch_lightning as pl
-import sh
+#import sh
 import torch
 import transformers
 
-sh.rm("-r", "-f", "logs")
-sh.mkdir("logs")
+#sh.rm("-r", "-f", "logs")
+#sh.mkdir("logs")
 
 EPOCHS = 10
 LR = 1e-2
