@@ -4,10 +4,10 @@ Create dataset from raw files.
 
 import pandas as pd
 from pathlib import Path
-from utils.utils import read_data, detect_text_language, remove_extra_spaces, remove_newline_characters
+from src.utils.utils import read_data, detect_text_language, remove_extra_spaces, remove_newline_characters
 
 # Settings
-DATASET_VERSION = "01"
+DATASET_VERSION = "02"
 LANGUAGE = "es"
 THRESHOLD_ENTITY_WORDS = 0.8
 THRESHOLD_MINIMUM_WORDS = 5
