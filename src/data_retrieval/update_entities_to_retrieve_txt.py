@@ -9,7 +9,7 @@ from pathlib import Path
 import os
 import sys
 
-source_path = str(Path(os.path.abspath(__file__)).parent)
+source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
@@ -33,7 +33,7 @@ def update_entities_to_retrieve():
 
 
 if __name__ == '__main__':
-    # python src/update_entities_to_retrieve_txt.py update_entities_to_retrieve
+    # python src/data_retrieval/update_entities_to_retrieve_txt.py update_entities_to_retrieve
     fire.Fire()
 
     # For debugging
