@@ -7,14 +7,14 @@ from pathlib import Path
 from src.utils.utils import read_data, detect_text_language, remove_extra_spaces, remove_newline_characters
 
 # Settings
-DATASET_VERSION = "02"
+DATASET_VERSION = "04"
 LANGUAGE = "es"
 THRESHOLD_ENTITY_WORDS = 0.8
 THRESHOLD_MINIMUM_WORDS = 5
 
 # Paths
 RAW_DATA_FOLDER = "data/raw"
-DATASET_FOLDER = "data/dataset"
+DATASET_FOLDER = "data/datasets"
 LANGUAGES_FILE = f"{DATASET_FOLDER}/tweets_language_cache.csv"
 OUTPUT_FILE = f"{DATASET_FOLDER}/dataset_v{DATASET_VERSION}.pkl"
 
