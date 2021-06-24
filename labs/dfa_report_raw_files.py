@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.5.0
+#       jupytext_version: 1.10.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -16,12 +16,12 @@
 # cd ..
 
 import gzip
-import pandas as pdd
-import pickle5 as pickle
+import pandas as pd
+import pickle as pickle
 
 # # Settings
 
-PREFIX = "0000-01"
+PREFIX = "2021-03"
 
 
 # # Functions
@@ -30,7 +30,7 @@ PREFIX = "0000-01"
 def read_data(file):
     with gzip.open(file, "rb") as fh:
         data = pickle.load(fh)
-    return data
+        return data
 
 def print_dates_file(file):
     data = read_data(file)
@@ -55,11 +55,6 @@ def print_report(prefix):
     users_file = f"{common_path}users.pkl"
     print(f"Users:")
     print_dates_file(users_file)
-    
-    # Hashtags
-    hashtags_file = f"{common_path}hashtags.pkl"
-    print(f"Hashtags:")
-    print_dates_file(hashtags_file)
     
     # Mentions
     mentions_file = f"{common_path}mentions.pkl"
