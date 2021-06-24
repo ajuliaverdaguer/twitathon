@@ -149,11 +149,5 @@ sql/.project
 
 *.idea
 
-# Entities files
-data/entities/entities_to_retrieve.txt
-data/entities/entities_automatic.txt
-data/entities/original_hashtags.csv
-data/entities/original_users.csv
-data/entities/original_users_ids.csv
-data/raw/*
-data/dataset/*
+# Data files
+data/*
