@@ -11,7 +11,8 @@ if source_path not in sys.path:
     sys.path.insert(0, source_path)
 
 from utils import utils
-from utils.paths import PATH_USERS_RAW_CURRENT, PATH_TWEETS_RAW_CURRENT, PATH_MENTIONS_RAW_CURRENT, PATH_LOG_CURRENT
+from utils.paths import PATH_DB_SQLITE_CURRENT, PATH_LOG_CURRENT
+from utils.sql import update_table
 
 import datetime
 import fire
@@ -109,21 +110,23 @@ def update_pickle(file, data, id_field):
     data.to_pickle(file, compression="gzip")
 
 
-def update_data_files(tweets):
+def update_database(tweets):
     tweets_df, mentions_df = create_tweets_mentions_dataframes(tweets)
     users_df = create_users_dataframe(tweets)
 
+    print(PATH_DB_SQLITE_CURRENT)
+
     if tweets_df is not None:
         utils.log_and_print(f"- Saving tweets ({len(tweets_df)})", PATH_LOG_CURRENT)
-        update_pickle(PATH_TWEETS_RAW_CURRENT, tweets_df, "tweet_id")
+        update_table(PATH_DB_SQLITE_CURRENT, "tweets", "tweet_id", tweets_df)
 
     if mentions_df is not None:
         utils.log_and_print(f"- Saving mentions ({len(mentions_df)})", PATH_LOG_CURRENT)
-        update_pickle(PATH_MENTIONS_RAW_CURRENT, mentions_df, "tweet_id")
+        update_table(PATH_DB_SQLITE_CURRENT, "mentions", "tweet_id", mentions_df)
 
     if users_df is not None:
         utils.log_and_print(f"- Saving users ({len(users_df)})", PATH_LOG_CURRENT)
-        update_pickle(PATH_USERS_RAW_CURRENT, users_df, "user_id")
+        update_table(PATH_DB_SQLITE_CURRENT, "users", "user_id", users_df)
 
 
 def retrieve_tweets_from_file(file, number_of_tweets=100):
@@ -148,7 +151,7 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
         # Only update when there is at least one tweet retrieved
         if len(tweets) > 0:
-            update_data_files(tweets)
+            update_database(tweets)
 
 
 if __name__ == '__main__':
