@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS users
+    (user_id TEXT PRIMARY KEY,
+    name TEXT,
+    screen_name TEXT,
+    location TEXT,
+    followers_count INTEGER,
+    friends_count INTEGER,
+    created_at TEXT,
+    favourites_count INTEGER,
+    time_zone TEXT,
+    geo_enabled TEXT,
+    verified TEXT,
+    statuses_count TEXT,
+    lang TEXT,
+    downloaded_at TEXT)
