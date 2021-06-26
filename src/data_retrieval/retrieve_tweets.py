@@ -5,6 +5,7 @@ Retrieve tweets from data file
 from pathlib import Path
 import os
 import sys
+import time
 
 source_path = str(Path(os.path.abspath(__file__)).parent.parent)
 if source_path not in sys.path:
@@ -19,6 +20,8 @@ import pandas as pd
 import tweepy
 from tqdm import tqdm
 
+MAX_ATTEMPTS = 5
+SLEEP_TIME = 10
 
 def create_tweets_mentions_dataframes(tweets):
     l_tweets = []
@@ -135,11 +138,21 @@ def retrieve_tweets_from_file(file, number_of_tweets=100):
 
         utils.log_and_print(entity, PATH_LOG_CURRENT)
 
-        try:
-            tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
+        successful_connection = False
+        attempt = 1
 
-        except tweepy.error.TweepError as e:
-            utils.log_and_print(f"--- Error retrieving tweets from {entity}", PATH_LOG_CURRENT)
+        while successful_connection is False and attempt <= MAX_ATTEMPTS:
+
+            try:
+                tweets = utils.retrieve_from_twitter(entity, number_of_tweets)
+                successful_connection = True
+
+            except tweepy.error.TweepError as e:
+                utils.log_and_print(f"--- Error retrieving tweets from {entity} (attempt {attempt})", PATH_LOG_CURRENT)
+                attempt = attempt + 1
+                time.sleep(SLEEP_TIME)
+
+        if successful_connection is False:
             continue
 
         if tweets is None:
