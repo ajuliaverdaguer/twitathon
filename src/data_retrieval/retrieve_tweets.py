@@ -14,7 +14,6 @@ from utils import utils
 from utils.paths import PATH_DB_SQLITE_CURRENT, PATH_LOG_CURRENT
 from utils.sql import update_table
 
-import datetime
 import fire
 import pandas as pd
 import tweepy
