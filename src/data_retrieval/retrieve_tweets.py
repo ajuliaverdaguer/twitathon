@@ -23,6 +23,7 @@ from tqdm import tqdm
 MAX_ATTEMPTS = 5
 SLEEP_TIME = 10
 
+
 def create_tweets_mentions_dataframes(tweets):
     l_tweets = []
     l_mentions = []
@@ -96,20 +97,6 @@ def create_users_dataframe(tweets):
     df_users = df_users.rename(columns={"id": "user_id"})
     df_users["user_id"] = df_users["user_id"].astype(str)
     return df_users
-
-
-def update_pickle(file, data, id_field):
-    data["downloaded_at"] = datetime.datetime.now()
-    try:
-        data_old = pd.read_pickle(file, compression="gzip")
-        data_old_ids = [str(i) for i in data_old[id_field]]
-        data_new_ids = [str(i) for i in data[id_field]]
-        ids_remove = [i for i in data_old_ids if i in data_new_ids]
-        data_old = data_old[~data_old[id_field].isin(ids_remove)]
-        data = pd.concat([data_old, data]).reset_index(drop=True)
-    except OSError:
-        pass
-    data.to_pickle(file, compression="gzip")
 
 
 def update_database(tweets):

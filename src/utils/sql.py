@@ -39,6 +39,7 @@ def get_list_of_tables(connection):
 
 def update_table(db_file, table, id_field, df):
     df["downloaded_at"] = datetime.datetime.now()
+    df = df.astype(str)
     connection = create_connection(db_file)
     with connection:
         if table in get_list_of_tables(connection):
