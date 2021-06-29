@@ -48,3 +48,9 @@ def update_table(db_file, table, id_field, df):
             ids_to_remove = list(set(new_ids).intersection(set(existing_ids)))
             delete_based_on_id_list(connection, table, id_field, ids_to_remove)
         df.to_sql(table, connection, index=False, if_exists="append")
+
+def read_table(db_file, table):
+    connection = create_connection(db_file)
+    with connection:
+        df = pd.read_sql(f"SELECT * FROM {table}", con=connection)
+    return df

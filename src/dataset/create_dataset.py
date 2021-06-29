@@ -3,8 +3,11 @@ Create dataset from raw files.
 """
 
 import pandas as pd
-from pathlib import Path
-from src.utils.utils import read_data, detect_text_language, remove_extra_spaces, remove_newline_characters
+
+from omegaconf import OmegaConf
+
+from src.utils.utils import detect_text_language, remove_extra_spaces, remove_newline_characters, get_all_db_files, \
+    get_complete_table
 
 # Settings
 DATASET_VERSION = "04"
@@ -13,23 +16,11 @@ THRESHOLD_ENTITY_WORDS = 0.8
 THRESHOLD_MINIMUM_WORDS = 5
 
 # Paths
-RAW_DATA_FOLDER = "data/raw"
-DATASET_FOLDER = "data/datasets"
-LANGUAGES_FILE = f"{DATASET_FOLDER}/tweets_language_cache.csv"
-OUTPUT_FILE = f"{DATASET_FOLDER}/dataset_v{DATASET_VERSION}.pkl"
-
-
-def find_files(folder, name):
-    return list(Path(folder).rglob(f"*{name}"))
-
-
-def merge_files(files, id_field):
-    data = list()
-    for file in files:
-        data.append(read_data(file))
-    data = pd.concat(data)
-    data = data.sort_values("downloaded_at")
-    return data.drop_duplicates(subset=[id_field], keep="last").reset_index(drop=True)
+paths = OmegaConf.load("config/paths.yaml")
+RAW_DATA_FOLDER = paths.default.data.folder_raw
+DATASETS_FOLDER = paths.default.data.folder_datasets
+LANGUAGES_FILE = paths.default.data.languages_file
+OUTPUT_FILE = f"{DATASETS_FOLDER}/dataset_v{DATASET_VERSION}.pkl"
 
 
 def load_languages_cache(languages_cache_file):
@@ -80,9 +71,9 @@ def filter_too_short_messages(dataset, threshold_minimum_words):
 
 # Retrieve data
 print("Retrieving data...")
-files_tweets = find_files(RAW_DATA_FOLDER, "tweets.pkl")
-print(f"- {len(files_tweets)} files found.")
-tweets = merge_files(files_tweets, id_field="tweet_id")
+files_db = get_all_db_files()
+print(f"- {len(files_db)} files found.")
+tweets = get_complete_table(files_db, table="tweets", id_field="tweet_id")
 
 # Create dataset
 print("Creating dataset...")
