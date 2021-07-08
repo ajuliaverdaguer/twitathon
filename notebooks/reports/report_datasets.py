@@ -40,6 +40,7 @@ for file in datasets_files:
     df = pd.DataFrame({"dataset": [dataset_name],
                        "num_tweets": [num_tweets]})
     datasets_report.append(df)
-datasets_report = pd.concat(datasets_report).reset_index(drop=True)
+datasets_report = pd.concat(datasets_report)
+datasets_report = datasets_report.sort_values("dataset").reset_index(drop=True)
 
 datasets_report

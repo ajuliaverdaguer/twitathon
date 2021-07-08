@@ -50,6 +50,7 @@ for db_file in raw_files:
                        "users": [num_users],
                        "mentions": [num_mentions]})
     report.append(df)
-report = pd.concat(report).reset_index(drop=True)
+report = pd.concat(report)
+report = report.sort_values("interval").reset_index(drop=True)
 
 report
