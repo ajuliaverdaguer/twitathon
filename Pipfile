@@ -20,6 +20,7 @@ matplotlib = "*"
 langdetect = "*"
 google-api-python-client = "*"
 google-auth-httplib2 = "*"
+omegaconf = "*"
 unidecode = "*"
 nltk = "*"
 

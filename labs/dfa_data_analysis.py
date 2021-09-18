@@ -7,28 +7,38 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.5.0
+#       jupytext_version: 1.11.3
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
 
+# cd ../..
+
+# %load_ext autoreload
+# %autoreload 2
+
+# +
 import pandas as pd
 
-# # Settings
+from glob import glob
+from omegaconf import OmegaConf
 
-TWEETS_FILE = "../data/tweets.pkl"
-HASHTAGS_FILE = "../data/hashtags.pkl"
-MENTIONS_FILE = "../data/mentions.pkl"
-USERS_FILE = "../data/users.pkl"
+from src.utils.sql import create_connection, read_table
+# -
 
+paths = OmegaConf.load("config/paths.yaml")
 
-# # Functions
+# # Retrieve data
 
-def read_data(file):
-    df = pd.read_pickle(file, compression="gzip")
-    return df
+raw_files_folder = paths.default.data.folder_raw
+raw_files = glob(f"{raw_files_folder}/*.db")
+
+for db_file in raw_files[:1]:
+    print(db_file)
+    tweets = read_table(db_file, "tweets")
+
 
 
 # # Retrieve data
@@ -50,6 +60,8 @@ mentions.head()
 users = read_data(USERS_FILE)
 print(len(users))
 users.head()
+
+
 
 # # Analysis
 
@@ -120,3 +132,5 @@ dates_summary = dates.value_counts()
 dates_summary.sort_index().tail(20)
 
 dates_summary.plot()
+
+

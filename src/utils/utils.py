@@ -20,6 +20,15 @@ import yaml
 
 from langdetect import detect, lang_detect_exception
 
+from omegaconf import OmegaConf
+
+from pathlib import Path
+
+from src.utils.sql import read_table
+
+paths = OmegaConf.load("config/paths.yaml")
+RAW_DATA_FOLDER = paths.default.data.folder_raw
+
 
 def connect_to_twitter_api(wait_on_rate_limit=False):
     twitter_keys = load_config()['default']['twitter']
@@ -152,3 +161,16 @@ def remove_extra_spaces(text):
 
 def remove_newline_characters(text):
     return text.replace("\n", " ").replace("\r", "")
+
+
+def get_all_db_files():
+    return list(Path(RAW_DATA_FOLDER).rglob("*.db"))
+
+
+def get_complete_table(files, table, id_field):
+    data = list()
+    for file in files:
+        data.append(read_table(file, table))
+    data = pd.concat(data)
+    data = data.sort_values("downloaded_at")
+    return data.drop_duplicates(subset=[id_field], keep="last").reset_index(drop=True)
