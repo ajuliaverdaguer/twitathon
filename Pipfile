@@ -20,6 +20,8 @@ matplotlib = "*"
 langdetect = "*"
 google-api-python-client = "*"
 google-auth-httplib2 = "*"
+unidecode = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.8"
