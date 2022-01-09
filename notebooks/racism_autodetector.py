@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.11.3
+#       jupytext_version: 1.12.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -104,5 +104,3 @@ model.fit(X_train, y_train)
 predictions = model.predict(X_test)
 
 print(metrics.classification_report(y_test, predictions))
-
-
