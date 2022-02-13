@@ -41,11 +41,10 @@ paths = OmegaConf.load("config/paths.yaml")
 
 # # Settings
 
-DATASET = "dataset_v07"
-SIZE = 500
-COLLECTION_NUM = "20"
+DATASET = "dataset_v09"
+TEST_SET_NUM = "2"
 
-SEED = int(COLLECTION_NUM)
+SEED = int(TEST_SET_NUM)
 
 
 # # Functions
@@ -65,7 +64,7 @@ def clean_message(message):
 
 DATASET_PATH = f"data/datasets/{DATASET}.pkl"
 HATE_SPEECH_WITH_LABELS_FILE = "data/labelling/hate_speech_with_labels.csv"
-OUTPUT_PATH = f"data/labelling/collections/collection_{COLLECTION_NUM}.csv"
+OUTPUT_PATH = f"data/labelling/test_set/test_set_{TEST_SET_NUM}.csv"
 
 # # Retrieve dataset
 
@@ -138,26 +137,83 @@ dataset = dataset[~dataset["tweet_id"].isin(known_ids)]
 
 dataset.head()
 
-
-# # Generate labelling collection
-
-def generate_collection(dataset):
-    subset_yes = dataset[dataset["is_hate"] == "y"].sample(n=9*int(SIZE/10), random_state=SEED)
-    subset_no = dataset[dataset["is_hate"] == "n"].sample(n=int(SIZE/10), random_state=SEED)
-    collection = pd.concat([subset_yes, subset_no]).sample(frac=1)
-    return collection
+len(dataset)
 
 
-collection = generate_collection(dataset)
+# # Generate test set
 
+# +
+def clean_text(text):
+    text = re.sub(r'\W+', ' ', text)
+    text = text.lower()
+    text = re.sub(" +", " ", text).strip()
+    return text
+
+def is_word_in_text(word, text):
+    words = text.split(" ")
+    return word in words
+
+def contains_racist_word(text):
+    text = clean_text(text)
+    for word in words_racist:
+        if is_word_in_text(word, text):
+            return True
+    return False
+
+
+# -
+
+hashtags = pd.read_csv("data/entities/original_hashtags.csv")
+
+words_racist = hashtags[hashtags["category"] == "racist"]["hashtag"].tolist()
+words_racist = [clean_text(w) for w in words_racist]
+
+test_set = dataset.copy()
+
+test_set["contains_racist_word"] = test_set["text"].apply(contains_racist_word)
+
+# ## Racist subset
+
+# ### Containing words
+
+size = 75
+
+subset = test_set[(dataset["is_hate"] == "y") & (test_set["contains_racist_word"] == True)]
+
+test_set_yes_racist_yes_word = subset.sample(n=size, random_state=SEED)
+
+# ### No containing words
+
+size = 75
+
+subset = test_set[(dataset["is_hate"] == "y") & (test_set["contains_racist_word"] == False)]
+
+test_set_yes_racist_no_word = subset.sample(n=size, random_state=SEED)
+
+# ## Non-racist subset
+
+# ### Containing words
+
+size = 75
+
+subset = test_set[(dataset["is_hate"] == "n") & (test_set["contains_racist_word"] == True)]
+
+test_set_no_racist_yes_word = subset.sample(n=size, random_state=SEED)
+
+# ### No containing words
+
+size = 75
+
+subset = test_set[(dataset["is_hate"] == "n") & (test_set["contains_racist_word"] == False)]
+
+test_set_no_racist_no_word = subset.sample(n=size, random_state=SEED)
 
 # # Save collection
 
-def save_collection(collection, file):
-    collection["language"] = "es"
-    collection["comment"] = ""
-    collection = collection[["language", "is_hate", "text", "tweet_id", "comment"]]
-    collection.to_csv(OUTPUT_PATH, index=False, sep="|", encoding="utf-8")
+test_set = pd.concat([test_set_yes_racist_yes_word, test_set_yes_racist_no_word, test_set_no_racist_yes_word, test_set_no_racist_no_word]).sample(frac=1).reset_index(drop=True)
 
+test_set["language"] = "es"
+test_set["comment"] = ""
+test_set = test_set[["language", "is_hate", "contains_racist_word", "text", "tweet_id", "comment"]]
 
-save_collection(collection, OUTPUT_PATH)
+test_set.to_csv(OUTPUT_PATH, index=False, sep="|", encoding="utf-8")
